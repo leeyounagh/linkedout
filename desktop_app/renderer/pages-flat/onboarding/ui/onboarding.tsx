@@ -33,12 +33,8 @@ export const OnBoarding = () => {
     }
   }, []);
 
-  useEffect(() => {
-    console.log("isGifEnded:", isGifEnded);
-  }, [isGifEnded]);
-
   return (
-    <DefaultLayout>
+    <>
       {isGifEnded ? (
         <Swiper step={step} setStep={setStep} maxStep={4}>
           {Array.from({ length: 4 }, (_, index) => (
@@ -48,10 +44,10 @@ export const OnBoarding = () => {
           ))}
         </Swiper>
       ) : (
-        <>
+        <DefaultLayout>
           <FirstStepContent />
-        </>
+        </DefaultLayout>
       )}
-    </DefaultLayout>
+    </>
   );
 };

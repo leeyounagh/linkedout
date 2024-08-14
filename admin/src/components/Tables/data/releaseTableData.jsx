@@ -16,7 +16,7 @@ function extractYearAndMonth(dateString) {
     month: month.toString(),
   };
 }
-export default function data(data) {
+export default function data(data,deleteFunc) {
   const Title = ({ title }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
       <MDTypography display="block" variant="button">
@@ -53,19 +53,40 @@ export default function data(data) {
       </Link>
     );
   };
-
+  const DeleteButton = ({ id }) => {
+    return (
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{
+          backgroundColor: "#ff1744",
+          color: "white !important",
+          "&:hover": {
+            backgroundColor: "#d50000",
+          },
+        }}
+        onClick={() => {
+          deleteFunc(id);
+        }}
+      >
+        Delete
+      </Button>
+    );
+  };
   return {
     columns: [
       { Header: "title", accessor: "title", width: "65%", align: "left" },
       { Header: "date", accessor: "date", align: "center" },
+      { Header: "delete", accessor: "delete", width: "10%", align: "center" },
       { Header: "edit", accessor: "edit", width: "10%", align: "center" },
     ],
 
     rows:
-      data?.histories?.map((item) => ({
+      data?.releases?.map((item) => ({
         title: <Title title={item.createdDate} />,
         date: <Date date={item.createdDate} />,
-        edit: <EditButton id={item.id} history={item.history} />,
+        edit: <EditButton id={item.id} history={item.content} />,
+        delete: <DeleteButton id={item.id} />,
       })) || [],
   };
 }

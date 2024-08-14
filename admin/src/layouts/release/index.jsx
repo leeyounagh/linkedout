@@ -8,6 +8,7 @@ import { Button, Box, Pagination } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { fetchData } from "../../api";
 import { useEffect, useState } from "react";
+import { showToast } from "../../utils/toast";
 
 function index() {
   const navigate = useNavigate();
@@ -27,14 +28,32 @@ function index() {
       },
     };
     const { data } = await fetchData(
-      "/admin/updated-histories",
+      "/admin/releases",
       "get",
       null,
       options
     );
-    const { columns, rows } = releaseTableData(data);
+    const { columns, rows } = releaseTableData(data,deleteRelease);
     setTableData({ columns, rows, totalPages: data.totalPage });
   };
+
+  const deleteRelease = async (id) => {
+    try {
+      const params ={
+        params:{
+          releaseId:id
+        }
+      }
+      const { status } = await fetchData(`/admin/releases`,'delete',null,params);
+      if (status === 200) {
+        showToast.success("notice deleted successfully");
+
+      }
+    } catch (err) {
+      showToast.error("delete Failed");
+    }
+  };
+
   const handlePageChange = (_, value) => {
     setCurrentPage(value);
   };

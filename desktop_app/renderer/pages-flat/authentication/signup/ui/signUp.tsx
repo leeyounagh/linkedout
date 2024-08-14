@@ -3,10 +3,8 @@ import { PrevButton } from "@/shared/ui/button";
 import TextField from "../../ui/contents/textfield";
 import { useState, useEffect } from "react";
 import InputField from "../../ui/contents/inputfield";
-import CheckField from "./contents/checkField";
 import { Button } from "@/shared/ui/button";
 import styled from "styled-components";
-import { useRouter } from "next/navigation";
 import { submitSignupForm } from "../api";
 import { GeneralToast } from "@/shared/ui/toast";
 
@@ -20,20 +18,6 @@ interface InputData {
   password: { value: string; placeholder: string };
 }
 
-interface CheckItem {
-  desc: string;
-  checked: boolean;
-  required: boolean;
-}
-
-interface CheckState {
-  allCheck: boolean;
-  service: CheckItem;
-  personal: CheckItem;
-  age: CheckItem;
-  marketing: CheckItem;
-}
-
 const validateInput = (input: string, regex: RegExp): boolean => {
   return regex.test(input);
 };
@@ -41,9 +25,7 @@ const validateInput = (input: string, regex: RegExp): boolean => {
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)/;
 
-const isButtonEnabled = (check: CheckState, inputData: InputData): boolean => {
-  const requiredChecks = [check.service, check.personal, check.age];
-  const allRequiredChecked = requiredChecks.every((item) => item.checked);
+const isButtonEnabled = (inputData: InputData): boolean => {
   const isEmailValid = validateInput(inputData.id.value, emailRegex);
 
   const isPasswordValid = validateInput(
@@ -51,11 +33,7 @@ const isButtonEnabled = (check: CheckState, inputData: InputData): boolean => {
     passwordRegex
   );
 
-  const inputDataValid = isEmailValid && inputData.password.value.length > 0;
-
-  return (
-    (check.allCheck || allRequiredChecked) && inputDataValid && isPasswordValid
-  );
+  return isEmailValid && isPasswordValid;
 };
 
 function SignUP() {
@@ -74,37 +52,14 @@ function SignUP() {
   });
   const [isShowToast, setIsShowToast] = useState(false);
   const [isButtonEnabledState, setIsButtonEnabled] = useState(false);
-  const [check, setCheck] = useState({
-    allCheck: false,
-    service: {
-      desc: "(필수) 서비스 이용약관 동의",
-      checked: false,
-      required: true,
-    },
-    personal: {
-      desc: "(필수) 개인정보 수집 및 이용 동의",
-      checked: false,
-      required: true,
-    },
-    age: {
-      desc: "(필수) 만 14세 이상입니다",
-      checked: false,
-      required: true,
-    },
-    marketing: {
-      desc: "(선택) 마케팅 정보 수신 동의",
-      checked: false,
-      required: false,
-    },
-  });
   const [toastText, setToastText] = useState({
     title: "입력하신 이메일 주소로 인증 메일이 발송됐습니다.",
     desc: "링크를 클릭해 인증을 완료해주세요.",
   });
 
   useEffect(() => {
-    setIsButtonEnabled(isButtonEnabled(check, inputData));
-  }, [check, inputData]);
+    setIsButtonEnabled(isButtonEnabled(inputData));
+  }, [inputData]);
 
   const onSubmit = async () => {
     setIsShowToast(false);
@@ -165,7 +120,6 @@ function SignUP() {
         isValidateText={true}
         error={error}
       />
-      <CheckField check={check} setCheck={setCheck} />
       <ButtonLayout>
         <Button
           text="회원가입"

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, SetStateAction } from "react";
 import { PrevButton } from "@/shared/ui/button";
 import DefaultLayout from "../../ui/layout/defaultLayout";
 import TextField from "../../ui/contents/textfield";
@@ -16,6 +16,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { useStore } from "@/shared/store";
 import { getUserInfo } from "@/shared/api";
+import { fetchData } from "@/shared/api/fetchData";
 
 type SocialLoginName = "google" | "kakao" | "naver";
 
@@ -67,16 +68,56 @@ export const Login = () => {
   const [isShowToast, setIsShowToast] = useState(false);
   const router = useRouter();
   const setUser = useStore((state) => state.setUser);
+  let deviceId = "";
+  let fcmToken = "";
 
   const redirectToPage = (isFirstLogin: boolean) => {
     if (isFirstLogin) {
-      router.push("/web/complete");
+      router.push("/web/termsofuse");
     } else {
       router.push("/web/main");
     }
   };
+  const handleUserInfo = async () => {
+    const userData = await getUserInfo();
+    if (userData) {
+      setUser(userData);
+
+      if (userData.isFirst) {
+        redirectToPage(true);
+        return;
+      }
+  
+      const deviceExists = userData.devices?.some(
+        (device) => device === deviceId
+      );
+      if (!deviceExists) {
+        const body = {
+          deviceId: deviceId,
+          fcmToken: fcmToken,
+        };
+        try {
+          await fetchData("support/devices/register", "post", body);
+        } catch (err) {
+          console.log("err", err);
+        }
+      }
+
+      redirectToPage(false);
+    }
+  };
 
   useEffect(() => {
+    const handleDeviceInfo = (data: string) => {
+      deviceId = data;
+    };
+
+    window.Electron?.requestDeviceInfo();
+    window.Electron?.onDeviceInfo(handleDeviceInfo);
+    window.Electron?.getFCMToken("getFCMToken", (_: any, token: string) => {
+      fcmToken = token;
+    });
+
     const handleLogin = async () => {
       const tenYearsFromNow = new Date(
         new Date().setFullYear(new Date().getFullYear() + 10)
@@ -94,11 +135,7 @@ export const Login = () => {
             sessionStorage.setItem("token", token);
           }
 
-          const userData = await getUserInfo();
-          if (userData) {
-            setUser(userData);
-            redirectToPage(userData.isFirst);
-          }
+          handleUserInfo();
         } catch (error) {
           console.error("Error checking first login:", error);
         }
@@ -123,11 +160,7 @@ export const Login = () => {
       const statusCode = await localLogin(body, autoLoginCheck);
       if (statusCode === 200 || statusCode === 201) {
         //메인페이지
-        const userData = await getUserInfo();
-        if (userData) {
-          setUser(userData);
-          redirectToPage(userData.isFirst);
-        }
+        handleUserInfo();
       }
     } catch (err) {
       console.log("err", err);

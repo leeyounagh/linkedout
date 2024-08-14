@@ -5,7 +5,6 @@ import { IndicatorBar } from "@/shared/ui/indicator";
 import styled from "styled-components";
 import { useRouter } from "next/navigation";
 
-
 interface stepType {
   step: "step1" | "step2" | "step3" | "step4";
 }
@@ -56,7 +55,11 @@ const ButtonDiv = styled.div`
   justify-content: center;
   margin-top: 33px;
 `;
-
+const Container = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+`;
 function GeneralContent({ step }: stepType) {
   const router = useRouter();
 
@@ -65,7 +68,9 @@ function GeneralContent({ step }: stepType) {
   };
   return (
     <>
-      <ImageRenderer step={step} />
+      <Container>
+        <ImageRenderer step={step} />
+      </Container>
       <TextRenderer text={textObj[step]} />
       <IndicatorDiv>
         <IndicatorBar step={step} />

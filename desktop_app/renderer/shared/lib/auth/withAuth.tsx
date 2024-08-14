@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 const withAuth = <P extends object>(WrappedComponent: ComponentType<P>): ComponentType<P> => {
   const AuthComponent = (props: P) => {
     const router = useRouter();
-
+   
     useEffect(() => {
       const token = Cookies.get('token') || sessionStorage.getItem('token');
       if (!token) {

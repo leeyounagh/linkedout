@@ -17,6 +17,7 @@ const Button = styled.button<{
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1001;
 `;
 
 interface SocialbuttonProps {
@@ -24,7 +25,7 @@ interface SocialbuttonProps {
   imgwidth: number;
   imgheight: number;
   bgColor: string;
-  name?:string;
+  name?: string;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
@@ -38,7 +39,12 @@ const CircleButton: React.FC<SocialbuttonProps> = ({
 }) => {
   return (
     <Button $bgColor={bgColor} onClick={onClick} name={name}>
-      <Image src={icon} alt="button Icon" width={imgwidth} height={imgheight} />
+      <Image
+        src={icon as StaticImageData}
+        alt="button Icon"
+        width={imgwidth}
+        height={imgheight}
+      />
     </Button>
   );
 };

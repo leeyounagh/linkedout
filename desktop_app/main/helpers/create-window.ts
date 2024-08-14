@@ -6,16 +6,17 @@ import {
   nativeImage,
   ipcMain,
   app,
-} from 'electron';
-import Store from 'electron-store';
-import * as path from 'path';
-import { setup as setupPushReceiver } from 'electron-push-receiver';
+} from "electron";
+import Store from "electron-store";
+import * as path from "path";
+import { setup as setupPushReceiver ,NOTIFICATION_RECEIVED } from "electron-push-receiver";
+import { machineIdSync } from "node-machine-id";
 
 export const createWindow = (
   windowName: string,
   options: BrowserWindowConstructorOptions
 ): BrowserWindow => {
-  const key = 'window-state';
+  const key = "window-state";
   const name = `window-state-${windowName}`;
   const store = new Store<Rectangle>({ name });
 
@@ -29,17 +30,6 @@ export const createWindow = (
   let state: Rectangle = {} as Rectangle;
 
   const restore = (): Rectangle => store.get(key, defaultSize);
-
-  const getCurrentPosition = (): Rectangle => {
-    const position = win.getPosition();
-    const size = win.getSize();
-    return {
-      x: position[0],
-      y: position[1],
-      width: size[0],
-      height: size[1],
-    };
-  };
 
   const windowWithinBounds = (
     windowState: Rectangle,
@@ -74,17 +64,10 @@ export const createWindow = (
     return windowState;
   };
 
-  const saveState = (): void => {
-    if (!win.isMinimized() && !win.isMaximized()) {
-      Object.assign(state, getCurrentPosition());
-    }
-    store.set(key, state);
-  };
-
   state = ensureVisibleOnSomeDisplay(restore());
 
   let appIcon = nativeImage.createFromPath(
-    path.join(process.cwd(), 'main', 'icons', 'logo.png')
+    path.join(process.cwd(), "main", "icons", "logo.png")
   );
 
   const win = new BrowserWindow({
@@ -93,27 +76,41 @@ export const createWindow = (
     autoHideMenuBar: true,
     icon: appIcon,
     frame: false,
-    backgroundColor: '#101012',
+    backgroundColor: "#101012",
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: false,
-      preload: path.join(process.cwd(), 'main', 'preload.js'),
+      preload: path.join(process.cwd(), "main", "preload.js"),
       ...options.webPreferences,
     },
   });
 
+
+  let machineId = machineIdSync();
+
+  ipcMain.on('request-device-info', (event) => {
+    event.sender.send('device-info', machineId);
+  });
   setupPushReceiver(win.webContents);
+  ipcMain.on(NOTIFICATION_RECEIVED, (event, notification) => {
+    win.webContents.send('notification', notification);
+  });
+  ipcMain.on('notification-clicked', (event, notification) => {
+    console.log('Notification clicked:', notification);
+    win.webContents.send('navigate-to', notification.url || 'http://localhost:8888/home');
+  });
+
   return win;
 };
 
 // IPC 이벤트 핸들러 추가
-ipcMain.on('minimize-window', (event) => {
+ipcMain.on("minimize-window", (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   win?.minimize();
 });
 
-ipcMain.on('maximize-window', (event) => {
+ipcMain.on("maximize-window", (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   if (win?.isMaximized()) {
     win.unmaximize();
@@ -122,38 +119,32 @@ ipcMain.on('maximize-window', (event) => {
   }
 });
 
-ipcMain.on('restore-window', (event) => {
+ipcMain.on("restore-window", (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   win?.unmaximize();
 });
 
-ipcMain.on('close-window', (event) => {
+ipcMain.on("close-window", (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   win?.close();
 });
 
-// app.on('ready', () => createWindow('main', {}));
+app.on('ready', () => {
+  app.setAppUserModelId("linkedout");
+});
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
     app.quit();
   }
 });
 
 const store = new Store();
 ipcMain.on("storeFCMToken", (e, token) => {
-  store.set('fcm_token', token);
+  store.set("fcm_token", token);
 });
 
 ipcMain.on("getFCMToken", async (e) => {
-  e.sender.send('getFCMToken', store.get('fcm_token'));
+  e.sender.send("getFCMToken", store.get("fcm_token"));
 });
-
-// app.on('activate', () => {
-//   if (BrowserWindow.getAllWindows().length === 0) {
-//     createWindow('main', {});
-//   }
-// });
-
-// 아래의 코드 블록 추가
 

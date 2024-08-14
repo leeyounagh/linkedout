@@ -9,6 +9,9 @@ import { SignUp } from "./authentication";
 import { Complete } from "./authentication";
 import { Main } from "./main";
 import { withAuth } from "@/shared/lib/auth";
+import { TermsofUse } from "./authentication";
+import { Essay } from "./essay";
+import { Community } from "./community";
 
 const ProtectedMain = withAuth(Main);
 const ProtectedFindInfo = withAuth(FindInfo);
@@ -16,6 +19,8 @@ const ProtectedMypage = withAuth(Mypage);
 const ProtectedRegister = withAuth(Register);
 const ProtectedWriteEssay = withAuth(WriteEssay);
 const ProtectedComplete = withAuth(Complete);
+const ProtectedEssay = withAuth(Essay);
+const ProtectedCommunity = withAuth(Community);
 
 type PageParams = {
   pagename: string;
@@ -23,14 +28,14 @@ type PageParams = {
 
 export const getStaticPaths = async () => {
   const paths = [
-    { params: { pagename: 'main' } },
-    { params: { pagename: 'findinfo' } },
-    { params: { pagename: 'login' } },
-    { params: { pagename: 'signup' } },
-    { params: { pagename: 'complete' } },
-    { params: { pagename: 'mypage' } },
-    { params: { pagename: 'register' } },
-    { params: { pagename: 'write_essay' } },
+    { params: { pagename: "main" } },
+    { params: { pagename: "findinfo" } },
+    { params: { pagename: "login" } },
+    { params: { pagename: "signup" } },
+    { params: { pagename: "complete" } },
+    { params: { pagename: "mypage" } },
+    { params: { pagename: "register" } },
+    { params: { pagename: "write_essay" } },
   ];
   return { paths, fallback: false };
 };
@@ -56,21 +61,27 @@ const RenderView: React.FC<RenderViewProps> = ({ pageName }) => {
     return <div>Loading...</div>;
   }
   switch (pageName) {
-    case 'main':
+    case "main":
       return <ProtectedMain />;
-    case 'findinfo':
+    case "findinfo":
       return <ProtectedFindInfo />;
-    case 'login':
+    case "login":
       return <Login />;
-    case 'signup':
+    case "termsofuse":
+      return <TermsofUse />;
+    case "signup":
       return <SignUp />;
-    case 'complete':
+    case "essay":
+      return <ProtectedEssay />;
+    case "community":
+      return <ProtectedCommunity />;
+    case "complete":
       return <ProtectedComplete />;
-    case 'mypage':
+    case "mypage":
       return <ProtectedMypage />;
-    case 'register':
+    case "register":
       return <ProtectedRegister />;
-    case 'write_essay':
+    case "write_essay":
       return <ProtectedWriteEssay />;
     default:
       return <NotFound />;

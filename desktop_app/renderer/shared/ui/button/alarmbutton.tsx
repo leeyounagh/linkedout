@@ -11,6 +11,10 @@ const Button = styled.button`
   background: none;
   padding: 0;
   cursor: pointer;
+  z-index: 1000;
+  position: absolute;
+  left:94.78%;
+  top:37.63px;
 `;
 
 const AlarmButton: React.FC<AlarmButtonProps> = ({ onClick }) => {

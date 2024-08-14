@@ -5,7 +5,7 @@ import onBoarding2 from "@/shared/assets/img/onboarding_final_2.gif";
 import onBoarding3 from "@/shared/assets/img/onboarding_final_3.gif";
 import onBoarding4 from "@/shared/assets/img/onboarding_final_4.gif";
 import { minHeights } from "@/shared/styles";
-
+import Image from "next/image";
 
 interface SLayoutProps {
   bgImage: string;
@@ -20,17 +20,12 @@ const SLayout = styled.section.attrs<SLayoutProps>((props) => ({
     backgroundImage: `url(${props.bgImage})`,
   },
 }))<SLayoutProps>`
-  width: 385.379px;
+  width: 385px;
   height: 58vh;
-  position: relative;
   background-size: cover;
   background-repeat: no-repeat;
-  background-position: center -10%;
-  @media only screen and ${minHeights.heightL} {
-    height: 40vh;
-  }
+  background-position: 100% -10%;
 `;
-
 const mapper = {
   step1: onBoarding1.src,
   step2: onBoarding2.src,

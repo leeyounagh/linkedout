@@ -60,11 +60,11 @@ function index() {
     },
     release: {
       body: {
-        history: value.content,
+        content: value.content,
       },
       endpoint: id
-        ? `/admin/updated-histories/${id}`
-        : "/admin/updated-histories",
+        ? `/admin/releases/${id}`
+        : "/admin/releases",
       successMessage: id
         ? "release edited successfully"
         : "release updated successfully",
