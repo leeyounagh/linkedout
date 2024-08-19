@@ -39,15 +39,10 @@ function index() {
 
   const deleteRelease = async (id) => {
     try {
-      const params ={
-        params:{
-          releaseId:id
-        }
-      }
-      const { status } = await fetchData(`/admin/releases`,'delete',null,params);
+      const { status } = await fetchData(`/admin/releases/${id}`,'delete');
       if (status === 200) {
         showToast.success("notice deleted successfully");
-
+        getRelease();
       }
     } catch (err) {
       showToast.error("delete Failed");
