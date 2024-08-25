@@ -27,7 +27,7 @@ function Index() {
                     limit: rowsPerPage,
                 },
             }
-            const response = await fetchData('/admin/reports', 'get', null, options)
+            const response = await fetchData('/admin-task/reports', 'get', null, options)
             const { columns, rows } = reportTableData(response.data)
             setData({ columns, rows, totalPages: response.data.totalPage })
         } catch (err) {

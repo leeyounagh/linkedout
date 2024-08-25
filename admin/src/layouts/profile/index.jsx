@@ -37,9 +37,9 @@ function Overview() {
 
     const returnUserProfile = async () => {
         try {
-            const adminList = await fetchData('/admin', 'get')
+            const adminList = await fetchData('/admin-info', 'get')
             const admin = await findAdmin(adminList.data.admins)
-            const adminProfile = await fetchData(`/admin/${admin.id}`, 'get')
+            const adminProfile = await fetchData(`/admin-info/${admin.id}`, 'get')
             setData((prev) => ({
                 ...prev,
                 adminProfile: adminProfile?.data,
@@ -50,7 +50,7 @@ function Overview() {
     }
 
     const requestAdminList = async () => {
-        const disabledAdmin = await fetchData('/admin/inactive', 'get')
+        const disabledAdmin = await fetchData('/admin-info/inactive', 'get')
         if (disabledAdmin.status === 200) {
             setData((prev) => ({
                 ...prev,
@@ -70,7 +70,7 @@ function Overview() {
             return acc
         }, {})
         try {
-            const editProfile = await fetchData('/admin', 'put', body)
+            const editProfile = await fetchData('/admin-info', 'put', body)
             if (editProfile.status === 200) {
                 showToast.success('Profile edited successfully')
                 setData((prev) => ({
@@ -96,7 +96,7 @@ function Overview() {
     }
     const makeActive = async (id) => {
         try {
-            const makeAdminActive = await fetchData(`/admin/${id}`, 'put', null, {
+            const makeAdminActive = await fetchData(`/admin-info/${id}`, 'put', null, {
                 params: {
                     activated: 'true',
                 },
@@ -127,7 +127,7 @@ function Overview() {
             formData.append('image', file)
 
             try {
-                const response = await fetchData('/admin/images', 'post', formData, {
+                const response = await fetchData('/admin-info/images', 'post', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -138,7 +138,7 @@ function Overview() {
                         profileImage: response.data.imageUrl,
                     }
 
-                    const editProfileImage = await fetchData('/admin', 'put', body)
+                    const editProfileImage = await fetchData('/admin-info', 'put', body)
                     if (editProfileImage.status === 200) {
                         showToast.success('image uploaded successfully')
                     } else {
@@ -153,7 +153,7 @@ function Overview() {
 
     const deleteProfileImage = async () => {
         try {
-            const response = await fetchData('/admin/images', 'delete')
+            const response = await fetchData('/admin-info/images', 'delete')
             if (response.status === 200) {
                 showToast.success('image deleted successfully')
                 returnUserProfile()

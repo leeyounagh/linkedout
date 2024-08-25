@@ -28,7 +28,7 @@ function Cover() {
 
   const handleSignup = async () => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_ROOT_API_URL}/admin/register`, {
+      const response = await axios.post(`${import.meta.env.VITE_ROOT_API_URL}/admin-auth/register`, {
         email,
         password,
         name,

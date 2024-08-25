@@ -25,7 +25,7 @@ function index() {
                     limit: rowsPerPage,
                 },
             }
-            const { data } = await fetchData('/admin/essays', 'get', null, options)
+            const { data } = await fetchData('/admin-management/essays', 'get', null, options)
             const { columns, rows } = essayTableData(data)
             setTableData({ columns, rows, totalPages: data.totalPage })
         } catch (err) {

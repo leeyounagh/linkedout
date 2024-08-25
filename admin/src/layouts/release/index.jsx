@@ -28,7 +28,7 @@ function index() {
       },
     };
     const { data } = await fetchData(
-      "/admin/releases",
+      "/admin-support/releases",
       "get",
       null,
       options
@@ -39,7 +39,7 @@ function index() {
 
   const deleteRelease = async (id) => {
     try {
-      const { status } = await fetchData(`/admin/releases/${id}`,'delete');
+      const { status } = await fetchData(`/admin-support/releases/${id}`,'delete');
       if (status === 200) {
         showToast.success("notice deleted successfully");
         getRelease();

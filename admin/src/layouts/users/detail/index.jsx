@@ -26,7 +26,7 @@ function Index() {
 
   const getDetail = async () => {
     try {
-      const { data } = await fetchData(`/admin/users/${id}`, "get");
+      const { data } = await fetchData(`/admin-management/users/${id}`, "get");
       setData(data);
     } catch (error) {
       console.error("user detail error", error);
@@ -43,7 +43,7 @@ function Index() {
     }, {});
 
     try {
-      const editProfile = await fetchData(`/admin/users/${id}`, "put", body);
+      const editProfile = await fetchData(`/admin-management/users/${id}`, "put", body);
 
       if (editProfile.status === 200) {
         showToast.success("유저정보가 업데이트되었습니다.");

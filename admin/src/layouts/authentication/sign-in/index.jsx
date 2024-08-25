@@ -27,25 +27,45 @@ function Basic() {
   const [password, setPassword] = useState("");
   const route = useNavigate();
 
-  useEffect(()=>{
-    const token = Cookies.get("token");
+  useEffect(() => {
+    const token = Cookies.get("refreshToken") && Cookies.get("accessToken");
     if (token) {
-        route("/dashboard");
+      route("/dashboard");
     }
-  },[route])
+  }, [route]);
+
+  const calculateExpiryDate = (days) => {
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + days);
+    return expiryDate;
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_ROOT_API_URL}/admin/login`, {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_ROOT_API_URL}/admin-auth/login`,
+        {
+          email,
+          password,
+        }
+      );
+  
       if (response.data.statusCode === 201) {
-        const token = response.headers["authorization"];
-        if (token) {
-          Cookies.set("token", token, { secure: true, sameSite: "Strict" });
+        const refreshToken = response.data.data.refreshToken;
+        const accessToken = response.data.data.accessToken;
+        if (refreshToken && accessToken) {
+          Cookies.set("accessToken", accessToken, {
+            expires: calculateExpiryDate(7),
+            secure: true,
+            sameSite: "Strict",
+          });
+          Cookies.set("refreshToken", refreshToken, {
+            expires: calculateExpiryDate(30),
+            secure: true,
+            sameSite: "Strict",
+          });
           Cookies.set("email", email, { secure: true, sameSite: "Strict" });
           // secure 옵션은 https에서만 쿠키를 전송할수 있도록함 (인증된 사이트에서만 이용가능)
           // sameSite 옵션은 쿠키를 전송할 사이트를 지정함
@@ -55,7 +75,6 @@ function Basic() {
           console.error("Token not found in response headers");
         }
       }
-
     } catch (error) {
       console.log("로그인 에러", error.message);
     }

@@ -42,7 +42,7 @@ function index() {
         title: value.title,
         content: value.content,
       },
-      endpoint: id ? `/admin/notices/${id}` : "/admin/notices",
+      endpoint: id ? `/admin-support/notices/${id}` : "/admin-support/notices",
       successMessage: id
         ? "notice edited successfully"
         : "notice updated successfully",
@@ -52,7 +52,7 @@ function index() {
       body: {
         answer: value.answer,
       },
-      endpoint: id ? `/admin/inquiries/${id}` : "/admin/inquiries",
+      endpoint: id ? `/admin-support/${id}` : "/admin-support/inquiries",
       successMessage: id
         ? "inquire edited successfully"
         : "inquire updated successfully",
@@ -63,8 +63,8 @@ function index() {
         content: value.content,
       },
       endpoint: id
-        ? `/admin/releases/${id}`
-        : "/admin/releases",
+        ? `/admin-support/releases/${id}`
+        : "/admin-support/releases",
       successMessage: id
         ? "release edited successfully"
         : "release updated successfully",
@@ -104,7 +104,7 @@ function index() {
     try {
       const { body, endpoint, successMessage, method } =
         payloads[title] || payloads.notice;
-      console.log();
+
       payloads[title] || payloads.notice;
       const { status } = await fetchData(endpoint, method, body);
       handleResponse(status, successMessage);

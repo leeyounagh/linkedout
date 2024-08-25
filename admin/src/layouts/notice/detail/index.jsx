@@ -25,7 +25,7 @@ function index() {
 
   const getDetail = async () => {
     try {
-      const { data } = await fetchData(`/admin/notices/${id}`, "get");
+      const { data } = await fetchData(`/admin-support/notices/${id}`, "get");
       setData(data);
     } catch (err) {
       console.log("err", err);

@@ -33,7 +33,7 @@ export default function Index() {
 
     const getDetail = async () => {
         try {
-            const response = await fetchData(`/admin/reports/${id}`, 'get')
+            const response = await fetchData(`/admin-task/reports/${id}`, 'get')
             const { columns, rows } = reportListTableData(response.data.reports)
             setColumns(columns)
             setRows(rows)
@@ -48,7 +48,7 @@ export default function Index() {
         const body = { actionType, comment }
 
         try {
-            const editProfileResponse = await fetchData(`/admin/reports/${id}`, 'post', body)
+            const editProfileResponse = await fetchData(`/admin-task/reports/${id}`, 'post', body)
             if (editProfileResponse.status === 200) {
                 showToast.success('Report information updated successfully.')
                 setData((prevData) => ({

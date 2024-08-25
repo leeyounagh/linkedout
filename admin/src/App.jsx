@@ -93,7 +93,7 @@ function App() {
   }, [pathname]);
 
   useEffect(() => {
-    const token = Cookies.get("token");
+    const token = Cookies.get("accessToken")&&Cookies.get("refreshToken");
     if (!token) {
       if (!pathname.includes("sign-in") && !pathname.includes("signup")) {
         navigate("/authentication/sign-in");

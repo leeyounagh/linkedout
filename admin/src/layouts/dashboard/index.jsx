@@ -42,9 +42,9 @@ function Dashboard() {
       try {
         const currentYear = new Date().getFullYear();
         const currentMonth = new Date().getMonth() + 1;
-        const countResponse = await AxiosInstance.get("/admin/dashboard");
+        const countResponse = await AxiosInstance.get("/admin-dashboard");
         const monthlyUserResponse = await AxiosInstance.get(
-          "/admin/statistics/users/monthly",
+          "/admin-dashboard/stats/users/monthly",
           {
             params: {
               year: currentYear,
@@ -52,7 +52,7 @@ function Dashboard() {
           }
         );
         const dailyPaymentResponse = await AxiosInstance.get(
-          "/admin/statistics/payments/daily",
+          "/admin-dashboard/stats/payments/daily",
           {
             params: {
               year: currentYear,
@@ -61,7 +61,7 @@ function Dashboard() {
           }
         );
         const monthlyEssayResponse = await AxiosInstance.get(
-          "/admin/statistics/essays/monthly",
+          "/admin-dashboard/stats/essays/monthly",
           {
             params: {
               year: currentYear,

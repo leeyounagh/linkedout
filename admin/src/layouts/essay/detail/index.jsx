@@ -29,7 +29,7 @@ export default function Index() {
 
   const getDetail = async () => {
     try {
-      const { data } = await fetchData(`/admin/essays/${id}`, "get");
+      const { data } = await fetchData(`/admin-management/essays/${id}`, "get");
       setData(data);
     } catch (error) {
       console.error("user detail error", error);
@@ -44,7 +44,7 @@ export default function Index() {
       return acc;
     }, {});
     try {
-      const editProfile = await fetchData(`/admin/essays/${id}`, "put", body);
+      const editProfile = await fetchData(`/admin-management/essays/${id}`, "put", body);
       if (editProfile.status === 200) {
         showToast.success("유저정보가 업데이트되었습니다.");
         setData((prev) => ({

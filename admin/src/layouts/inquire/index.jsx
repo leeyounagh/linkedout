@@ -27,7 +27,7 @@ function index() {
         },
       };
       const { data } = await fetchData(
-        "/admin/inquiries",
+        "/admin-support/inquiries",
         "get",
         null,
         options

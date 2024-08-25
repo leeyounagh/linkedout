@@ -32,7 +32,7 @@ function index() {
           limit: rowsPerPage,
         },
       };
-      const { data } = await fetchData("/admin/notices", "get", null, options);
+      const { data } = await fetchData("/admin-support/notices", "get", null, options);
       const { columns, rows } = noticeTableData(data, deleteNotice);
       setTableData({ columns, rows, totalPages: data.totalPage });
     } catch (err) {
@@ -47,7 +47,7 @@ function index() {
           noticeId:id
         }
       }
-      const { status } = await fetchData(`/admin/notices/${id}`,'delete',null,params);
+      const { status } = await fetchData(`/admin-support/notices/${id}`,'delete',null,params);
       if (status === 200) {
         showToast.success("notice deleted successfully");
         getNotice();

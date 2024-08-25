@@ -32,7 +32,7 @@ function Index() {
                     filter: filter,
                 },
             }
-            const { data } = await fetchData('/admin/users', 'get', null, options)
+            const { data } = await fetchData('/admin-management/users', 'get', null, options)
             const { columns, rows } = userTableData(data)
             setData({ columns, rows, totalPages: data.totalPage })
         } catch (err) {
