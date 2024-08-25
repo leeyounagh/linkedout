@@ -96,7 +96,7 @@ function Overview() {
     }
     const makeActive = async (id) => {
         try {
-            const makeAdminActive = await fetchData(`/admin-info/${id}`, 'put', null, {
+            const makeAdminActive = await fetchData(`/admin-root/${id}`, 'put', null, {
                 params: {
                     activated: 'true',
                 },

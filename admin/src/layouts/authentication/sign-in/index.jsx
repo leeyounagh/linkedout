@@ -57,20 +57,17 @@ function Basic() {
         const accessToken = response.data.data.accessToken;
         if (refreshToken && accessToken) {
           Cookies.set("accessToken", accessToken, {
-            expires: calculateExpiryDate(7),
-            secure: true,
-            sameSite: "Strict",
+            expires: 7,
           });
           Cookies.set("refreshToken", refreshToken, {
-            expires: calculateExpiryDate(30),
-            secure: true,
-            sameSite: "Strict",
+            expires:30,
           });
           Cookies.set("email", email, { secure: true, sameSite: "Strict" });
-          // secure 옵션은 https에서만 쿠키를 전송할수 있도록함 (인증된 사이트에서만 이용가능)
-          // sameSite 옵션은 쿠키를 전송할 사이트를 지정함
-          // Strict 옵션은 쿠키를 전송할 사이트를 지정함
+          // // secure 옵션은 https에서만 쿠키를 전송할수 있도록함 (인증된 사이트에서만 이용가능)
+          // // sameSite 옵션은 쿠키를 전송할 사이트를 지정함
+          // // Strict 옵션은 쿠키를 전송할 사이트를 지정함
           route("/dashboard");
+        
         } else {
           console.error("Token not found in response headers");
         }
