@@ -6,6 +6,7 @@ import { ThemeProvider } from "styled-components";
 import { useTheme } from "@/shared/lib/theme";
 import localFont from "next/font/local";
 import { usePathname } from "next/navigation";
+import "react-quill/dist/quill.snow.css";
 
 const defaultValue = {
   theme: "dark",

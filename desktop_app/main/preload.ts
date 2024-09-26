@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld("Electron", {
   },
   requestDeviceInfo: () => ipcRenderer.send('request-device-info'),
   onDeviceInfo: (callback:any) => ipcRenderer.on('device-info', (event, data) => callback(data)),
+  getLocation: () => ipcRenderer.invoke('get-location')
 });
 
 const senderId = 710166131124; // Replace 'yourSenderID' with your actual sender ID
@@ -96,6 +97,7 @@ ipcRenderer.on(TOKEN_UPDATED, (_, token) => {
   const event = new CustomEvent('fcmTokenUpdated', { detail: token });
   window.dispatchEvent(event);
 });
+
 
 window.addEventListener('DOMContentLoaded', () => {
   const minButton = document.getElementById('min-button');

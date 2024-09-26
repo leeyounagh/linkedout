@@ -9,7 +9,7 @@ import { GeneralToast } from "@/shared/ui/toast";
 import { useStore } from "@/shared/store";
 import { getUserInfo } from "@/shared/api";
 
-type TermKey = 'service' | 'personal' | 'location';
+type TermKey = "service" | "personal" | "location";
 
 function index() {
   const [check, setCheck] = useState({
@@ -58,7 +58,7 @@ function index() {
   const router = useRouter();
   const setUser = useStore((state) => state.setUser);
   const [currentTerm, setCurrentTerm] = useState<TermKey>("service");
-  console.log("currentTerm",currentTerm)
+
   useEffect(() => {
     const handleDeviceInfo = (data: string) => {
       setMachineId(data);
@@ -82,35 +82,24 @@ function index() {
         isFirst: false,
       };
       await fetchData(`users`, "put", isFirstLoginDisabled);
-      const body = {
-        uid: machineId,
-        fcmToken: fcmToken,
+      const sendAlertList = {
+        viewed: check.alert.checked,
+        report: check.alert.checked,
+        marketing: check.marketing.checked,
       };
       const { status } = await fetchData(
-        "support/devices/register",
+        `support/settings`,
         "post",
-        body
+        sendAlertList
       );
-      if (status === 201) {
-        const sendAlertList = {
-          viewed: check.alert.checked,
-          report: check.alert.checked,
-          marketing: check.marketing.checked,
-        };
-        const { status } = await fetchData(
-          `support/settings`,
-          "post",
-          sendAlertList
-        );
-        if (check.location.checked) {
-          await handleAgreeLocation();
-        } else if (status === 201) {
-          const userData = await getUserInfo();
-          if (userData) {
-            setUser(userData);
-          }
-          router.push("/web/complete");
+      if (check.location.checked) {
+        await handleAgreeLocation();
+      } else if (status === 201) {
+        const userData = await getUserInfo();
+        if (userData) {
+          setUser(userData);
         }
+        router.push("/web/complete");
       }
     } catch (err) {
       console.log(err);
@@ -145,19 +134,19 @@ function index() {
   };
 
   const termsMapper: Record<TermKey, { title: string; url: string }> = {
-    service:{
-      title:"서비스 이용 약관",
-      url:"https://www.linkedoutapp.com/terms"
+    service: {
+      title: "서비스 이용 약관",
+      url: "https://www.linkedoutapp.com/terms",
     },
-    personal:{
-      title:"개인정보처리 방침",
-      url:"https://www.linkedoutapp.com/privacy-policy"
+    personal: {
+      title: "개인정보처리 방침",
+      url: "https://www.linkedoutapp.com/privacy-policy",
     },
-    location:{
-      title:"위치기반서비스 이용 약관",
-      url:"https://www.linkedoutapp.com/location-terms"
-    }
-  }
+    location: {
+      title: "위치기반서비스 이용 약관",
+      url: "https://www.linkedoutapp.com/location-terms",
+    },
+  };
 
   return (
     <DefaultLayout>

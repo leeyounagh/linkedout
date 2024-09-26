@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import Path from "@/shared/ui/path/path";
+import Path from "@/shared/assets/img/path.svg";
 import color from "@/shared/styles/color";
 import { CircleButton } from "@/shared/ui/button";
 import GoogleImage from "@/shared/assets/img/google.webp";

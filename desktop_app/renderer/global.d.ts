@@ -10,6 +10,7 @@ declare global {
       onNotification: (callback: (notification: any) => void) => void; 
       removeNotificationListener: (callback: (notification: any) => void) => void; 
       showNotification: (title: string, body: any) => void; 
+      getLocation: () => Promise<{ latitude: string; longitude: string } | null>;
     };
   }
 }

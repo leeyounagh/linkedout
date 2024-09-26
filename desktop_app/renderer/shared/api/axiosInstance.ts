@@ -5,32 +5,32 @@ const AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
-
-
 AxiosInstance.interceptors.request.use((config) => {
-  let token: string | null = sessionStorage.getItem("token");
-  if (!token) {
-    token = Cookies.get("token") || null;
+  let accessToken = sessionStorage.getItem("accessToken");
+  let refreshToken = sessionStorage.getItem("refreshToken");
+
+  if (!accessToken && !refreshToken) {
+    accessToken = Cookies.get("accessToken") || null;
+    refreshToken = Cookies.get("refreshToken") || null;
   }
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (refreshToken) {
+    config.headers["x-refresh-token"] = refreshToken;
+  }
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
   }
   return config;
 });
 
 AxiosInstance.interceptors.response.use(
   (response) => {
-    const newToken = response.headers["authorization"];
-    if (newToken) {
-      const tokenValue = newToken.split(" ")[1];
-      if (sessionStorage.getItem("token")) {
-        sessionStorage.setItem("token", tokenValue);
+    const newAccessToken = response.headers["x-access-token"];
+    if (newAccessToken) {
+      if (sessionStorage.getItem("refreshToken")) {
+        sessionStorage.setItem("accessToken", newAccessToken);
       } else {
-        const tenYearsFromNow = new Date(
-          new Date().setFullYear(new Date().getFullYear() + 10)
-        );
-        Cookies.set("token", tokenValue, {
-          expires: tenYearsFromNow,
+        Cookies.set("accessToken", newAccessToken, {
+          expires: 7,
           secure: true,
           sameSite: "Strict",
         });
@@ -40,8 +40,10 @@ AxiosInstance.interceptors.response.use(
   },
   (error) => {
     if (error.response && error.response.status === 401) {
-      Cookies.remove("token");
-      sessionStorage.removeItem("token");
+      Cookies.remove("refreshToken");
+      Cookies.remove("accessToken");
+      sessionStorage.removeItem("accessToken");
+      sessionStorage.removeItem("refreshToken");
       window.location.href = "/web/login";
     }
     return Promise.reject(error);

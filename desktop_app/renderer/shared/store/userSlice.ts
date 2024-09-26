@@ -1,4 +1,13 @@
-import { StateCreator } from 'zustand';
+import { StateCreator } from "zustand";
+
+export interface Device {
+  uid: string;
+  fcmToken: string;
+  id: number;
+  model: string;
+  os: string;
+  type: string;
+}
 
 export interface User {
   id: number;
@@ -6,8 +15,8 @@ export interface User {
   nickname: string;
   profileImage: string;
   createdDate: string;
-  locationConsent:boolean;
-  devices?:string[];
+  locationConsent: boolean;
+  devices?: Device[];
 }
 
 export interface UserState {
@@ -16,8 +25,29 @@ export interface UserState {
   clearUser: () => void;
 }
 
+const LOCAL_STORAGE_KEY = 'userState';
+
+// Helper function to get initial state from localStorage
+const getInitialUserState = (): User | null => {
+  if (typeof window !== 'undefined') {
+    const storedUser = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return storedUser ? JSON.parse(storedUser) : null;
+  }
+  return null;
+};
+
 export const createUserSlice: StateCreator<UserState> = (set) => ({
-  user: null,
-  setUser: (user) => set({ user }),
-  clearUser: () => set({ user: null }),
+  user: getInitialUserState(),
+  setUser: (user) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(user));
+    }
+    set({ user });
+  },
+  clearUser: () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
+    set({ user: null });
+  },
 });

@@ -56,10 +56,13 @@ const Li = styled.li`
 `;
 
 export const Login = () => {
+  const searchParams = useSearchParams();
   const token =
-    useSearchParams().get("token") ||
-    Cookies.get("token") ||
-    sessionStorage.getItem("token");
+    (searchParams.get("accessToken") && searchParams.get("refreshToken")) ||
+    (Cookies.get("accessToken") && Cookies.get("refreshToken")) ||
+    (sessionStorage.getItem("accessToken") &&
+      sessionStorage.getItem("refreshToken"));
+
   const [infoData, setInfoData] = useState({
     id: { value: "", placeholder: "이메일 주소 또는 아이디" },
     password: { value: "", placeholder: "비밀번호" },
@@ -68,8 +71,8 @@ export const Login = () => {
   const [isShowToast, setIsShowToast] = useState(false);
   const router = useRouter();
   const setUser = useStore((state) => state.setUser);
-  let deviceId = "";
-  let fcmToken = "";
+  const [deviceId, setDeviceId] = useState("");
+  const [fcmToken, setFcmToken] = useState("");
 
   const redirectToPage = (isFirstLogin: boolean) => {
     if (isFirstLogin) {
@@ -78,74 +81,93 @@ export const Login = () => {
       router.push("/web/main");
     }
   };
+  const calculateExpiryDate = (days: number): Date => {
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + days);
+    return expiryDate;
+  };
+
   const handleUserInfo = async () => {
-    const userData = await getUserInfo();
-    if (userData) {
-      setUser(userData);
+    if (deviceId && fcmToken) {
+      const userData = await getUserInfo();
+      const body = {
+        uid: deviceId,
+        fcmToken: fcmToken,
+      };
 
-      if (userData.isFirst) {
-        redirectToPage(true);
-        return;
-      }
-  
-      const deviceExists = userData.devices?.some(
-        (device) => device === deviceId
-      );
-      if (!deviceExists) {
-        const body = {
-          deviceId: deviceId,
-          fcmToken: fcmToken,
-        };
-        try {
+      if (userData) {
+        setUser(userData);
+        if (userData.isFirst) {
           await fetchData("support/devices/register", "post", body);
-        } catch (err) {
-          console.log("err", err);
+          redirectToPage(true);
+          return;
         }
+        if (deviceId.length > 0) {
+          const deviceExists = userData.devices?.some(
+            (device) => device?.uid === deviceId
+          );
+          if (!deviceExists) {
+            try {
+              await fetchData("support/devices/register", "post", body);
+              redirectToPage(false);
+            } catch (err) {
+              console.log("err", err);
+            }
+          }
+        }
+        redirectToPage(false);
       }
-
-      redirectToPage(false);
     }
   };
 
   useEffect(() => {
     const handleDeviceInfo = (data: string) => {
-      deviceId = data;
+      setDeviceId(data);
     };
 
     window.Electron?.requestDeviceInfo();
     window.Electron?.onDeviceInfo(handleDeviceInfo);
     window.Electron?.getFCMToken("getFCMToken", (_: any, token: string) => {
-      fcmToken = token;
+      setFcmToken(token);
     });
+  }, []);
 
+  useEffect(() => {
     const handleLogin = async () => {
-      const tenYearsFromNow = new Date(
-        new Date().setFullYear(new Date().getFullYear() + 10)
-      );
+      const socialAccessToken = searchParams.get("accessToken");
+      const socialRefreshToken = searchParams.get("refreshToken");
 
       if (token) {
-        try {
-          if (autoLoginCheck) {
-            Cookies.set("token", token, {
-              expires: tenYearsFromNow,
+        if (socialAccessToken && socialRefreshToken) {
+          try {
+            // 소셜로그인 쿼리로 토큰이 세팅 되어있을때
+            const accessTokenExpiry = calculateExpiryDate(7);
+            const refreshTokenExpiry = calculateExpiryDate(30);
+
+            Cookies.set("accessToken", socialAccessToken, {
+              expires: accessTokenExpiry,
               secure: true,
               sameSite: "Strict",
             });
-          } else {
-            sessionStorage.setItem("token", token);
+            Cookies.set("refreshToken", socialRefreshToken, {
+              expires: refreshTokenExpiry,
+              secure: true,
+              sameSite: "Strict",
+            });
+            await handleUserInfo();
+            // 소셜로그인의 경우 자동로그인 되게
+          } catch (error) {
+            console.error("Error handling tokens:", error);
           }
-
-          handleUserInfo();
-        } catch (error) {
-          console.error("Error checking first login:", error);
+        } else {
+          await handleUserInfo();
+          // 로컬 로그인의 경우이면서 이미 자동로그인 체크한 상태
         }
-      } else {
-        console.error("No token found");
       }
     };
 
     handleLogin();
-  }, [token, autoLoginCheck, router]);
+  }, [token, autoLoginCheck, deviceId, fcmToken]);
 
   const isValidButton =
     infoData.id.value.length > 0 && infoData.password.value.length > 0;
@@ -159,8 +181,8 @@ export const Login = () => {
     try {
       const statusCode = await localLogin(body, autoLoginCheck);
       if (statusCode === 200 || statusCode === 201) {
-        //메인페이지
-        handleUserInfo();
+        //메인페이지 로컬회원가입의 경우 회원가입후 디바이스가 등록됨
+        redirectToPage(false);
       }
     } catch (err) {
       console.log("err", err);

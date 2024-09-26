@@ -1,1 +1,0 @@
-export { CheckGrammar } from "./checkgrammar";

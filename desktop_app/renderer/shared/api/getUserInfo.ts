@@ -1,4 +1,5 @@
 import AxiosInstance from "./axiosInstance";
+import { Device } from "../store/userSlice";
 
 interface UserData {
     id: number;
@@ -8,7 +9,7 @@ interface UserData {
     createdDate: string;
     isFirst: boolean;
     locationConsent: boolean;
-    devices?: string[];
+    devices?: Device[];
   }
 
 export const getUserInfo = async () => {

@@ -11,6 +11,9 @@ import Store from "electron-store";
 import * as path from "path";
 import { setup as setupPushReceiver ,NOTIFICATION_RECEIVED } from "electron-push-receiver";
 import { machineIdSync } from "node-machine-id";
+const NodeGeocoder = require('node-geocoder');
+
+const geocoder = NodeGeocoder({ provider: 'openstreetmap' });
 
 export const createWindow = (
   windowName: string,
@@ -103,6 +106,26 @@ export const createWindow = (
 
   return win;
 };
+ipcMain.handle('get-location', async () => {
+  try {
+    const ipResponse = await fetch('https://api.ipify.org?format=json');
+    const ipData = await ipResponse.json();
+    const userIp = ipData.ip;
+
+    const locationResponse = await fetch(`https://api.ipgeolocation.io/ipgeo?apiKey=664ea44f8663409c8eba020ccc2a82ff&ip=${userIp}`);
+    const locationData = await locationResponse.json();
+
+    return {
+      city: locationData.city,
+      country: locationData.country_name,
+      latitude: locationData.latitude,
+      longitude: locationData.longitude
+    };
+  } catch (error) {
+    console.error('Error fetching location:', error);
+    return null;
+  }
+});
 
 // IPC 이벤트 핸들러 추가
 ipcMain.on("minimize-window", (event) => {

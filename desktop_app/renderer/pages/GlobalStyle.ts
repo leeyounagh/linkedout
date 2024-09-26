@@ -36,6 +36,22 @@ article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
 	display: block;
 }
+  /* 스크롤바 전체 영역 */
+::-webkit-scrollbar {
+  width: 6px; /* 스크롤바의 너비 */
+}
+
+/* 스크롤바 트랙 (스크롤바의 배경) */
+::-webkit-scrollbar-track {
+  background: #161616; /* 트랙의 배경 색상 */
+}
+
+/* 스크롤바 슬라이더 */
+::-webkit-scrollbar-thumb {
+  background:#242424; /* 슬라이더 색상 */
+  border-radius: 15px; /* 모서리 둥글게 */
+}
+
 body{
   width: 100%;
 	height:100vh;
@@ -45,6 +61,7 @@ body{
   color: ${({ theme }) => theme.colors.text};
 	display:flex;
 	justify-content: center;
+  
 }
 #titlebar {
   display: block;
@@ -153,39 +170,7 @@ cursor: pointer;
     color: ${({ theme }) => theme.colors.text};
 	display:flex;
 	justify-content: center;
-      /* 전역 스크롤바 스타일 */
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #242424;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 10px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
-  /* Firefox 스크롤바 스타일 */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: #888 #242424;
-  }
-  *::-webkit-scrollbar {
-    width: 6px;
-  }
-  *::-webkit-scrollbar-track {
-    background: #242424;
-  }
-  *::-webkit-scrollbar-thumb {
-    background-color: #888;
-    border-radius: 10px;
-    border: 3px solid #242424;
-  }
-  *::-webkit-scrollbar-thumb:hover {
-    background-color: #555;
-  }
+
 }
 .container.slide-up {
   width: 100vw;
@@ -206,6 +191,9 @@ q:before, q:after {
 table {
 	border-collapse: collapse;
 	border-spacing: 0;
+}
+.ql-snow .ql-editor strong {    
+    font-weight: bold !important;
 }
 `;
 

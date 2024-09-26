@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import color from "@/shared/styles/color";
 import Closebutton from "../button/closebutton";
-import { useState, Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 const Overlay = styled.div`
   position: fixed;
@@ -16,18 +16,18 @@ const Overlay = styled.div`
   align-items: center;
 `;
 
-const Layout = styled.div`
+const Layout = styled.div<{ positionTop?: string }>`
   display: flex;
   width: 440px;
   height: 81px;
-  padding: 16px 18px 16px 20px;
+  padding: 16px 0px 16px 0px;
   flex-shrink: 0;
   white-space: nowrap;
   text-align: left;
   border-radius: 10px;
   background: #212121;
   position: fixed;
-  top: 82.21vh;
+  top: ${({ positionTop }) => positionTop || '82.21vh'};
   z-index: 1000;
 `;
 
@@ -59,15 +59,16 @@ const ContentDiv = styled.div`
 
 const CloseButtonDiv = styled.div`
   position: absolute;
-  top: 30px;
-  left: 440px;
+  top: 45px;
+  right: 18px;
 `;
 
 interface GeneralToastProps {
   title: string;
-  desc: string;
+  desc?: string;
   isShowToast: boolean;
   setIsShowToast: Dispatch<SetStateAction<boolean>>;
+  positionTop?:string,
 }
 
 const GeneralToast: React.FC<GeneralToastProps> = ({
@@ -75,13 +76,14 @@ const GeneralToast: React.FC<GeneralToastProps> = ({
   desc,
   isShowToast,
   setIsShowToast,
+  positionTop=""
 }) => {
   if (!isShowToast) {
     return null;
   }
   return (
     <Overlay>
-      <Layout>
+      <Layout positionTop={positionTop}>
         <CloseButtonDiv>
           <Closebutton isShowModal={isShowToast} setIsShowModal={setIsShowToast} />
         </CloseButtonDiv>

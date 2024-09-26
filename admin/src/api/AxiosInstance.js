@@ -31,9 +31,9 @@ AxiosInstance.interceptors.response.use(
   },
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Cookies.remove("refreshToken");
-      // Cookies.remove("accessToken");
-      // window.location.href = "/web/login";
+      Cookies.remove("refreshToken");
+      Cookies.remove("accessToken");
+      window.location.href = "/web/login";
     }
     return Promise.reject(error);
   }

@@ -5,19 +5,19 @@ import { useStore } from "@/shared/store";
 
 interface IconMap {
   home: React.ReactElement;
-  essay: React.ReactElement;
+  myessay: React.ReactElement;
   community: React.ReactElement;
   mypage: React.ReactElement;
 }
 
 const routerMapper = {
   home: "/web/main",
-  essay: "/web/essay",
+  myessay: "/web/myessay",
   community: "/web/community",
   mypage: "/web/mypage",
 };
 
-function ActiveFooter() {
+function ActiveFooter({ isModalOpen }: { isModalOpen?: boolean }) {
   const router = useRouter();
   const path = useStore((state) => state.path);
   const setPath = useStore((state) => state.setPath);
@@ -37,7 +37,7 @@ function ActiveFooter() {
     router.push(routerMapper[key]);
   };
 
-  return <Footer focusedKey={focusedKey} onIconClick={handleIconClick} />;
+  return <Footer focusedKey={focusedKey} onIconClick={handleIconClick} isModalOpen={isModalOpen} />;
 }
 
 export default ActiveFooter;

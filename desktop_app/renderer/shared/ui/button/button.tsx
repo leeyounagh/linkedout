@@ -8,7 +8,13 @@ type ButtonProps = BtnType & {
   onClick?: MouseEventHandler<HTMLButtonElement>;
 };
 
-export const Button = ({ text, style, type, scale, onClick }: ButtonProps) => {
+export const Button = ({
+  text,
+  style = "square",
+  type = "point",
+  scale = "large",
+  onClick,
+}: ButtonProps) => {
   const [styleObj, setStyleObj] = useState<styleObjType | null>(null);
 
   useLayoutEffect(() => {

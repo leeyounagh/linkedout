@@ -10,10 +10,12 @@ import EssayDisableIcon from "@/shared/assets/img/home_essay_icon_disabled.svg";
 import CommunityDisableIcon from "@/shared/assets/img/home_community_icon_disabled.svg";
 import MypageDisableIcon from "@/shared/assets/img/home_mypage_disabled.svg";
 
-const Container = styled.footer`
+const Container = styled.footer<{ isModalOpen: boolean }>`
   display: flex;
-  width: 100%;
-  height: 50px;
+  width: ${({ isModalOpen }) =>
+    isModalOpen ? "calc(100vw - 390px)" : "100vw"};
+  height: 77px;
+  padding-bottom:20px;
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
@@ -21,6 +23,7 @@ const Container = styled.footer`
   bottom: 0;
   left: 0px;
   background-color: ${color.black};
+  transition: width 0.3s ease;
 `;
 
 const Wrapper = styled.div`
@@ -34,21 +37,21 @@ const Wrapper = styled.div`
 
 interface IconMap {
   home: React.ReactElement;
-  essay: React.ReactElement;
+  myessay: React.ReactElement;
   community: React.ReactElement;
   mypage: React.ReactElement;
 }
 
 const disableIcon: IconMap = {
   home: <HomeDisableIcon />,
-  essay: <EssayDisableIcon />,
+  myessay: <EssayDisableIcon />,
   community: <CommunityDisableIcon />,
   mypage: <MypageDisableIcon />,
 };
 
 const focusIcon: IconMap = {
   home: <HomeFocusIcon />,
-  essay: <EssayFocusIcon />,
+  myessay: <EssayFocusIcon />,
   community: <CommunityFocusIcon />,
   mypage: <MypageFocusIcon />,
 };
@@ -56,12 +59,19 @@ const focusIcon: IconMap = {
 interface FooterProps {
   focusedKey: keyof IconMap;
   onIconClick: (key: keyof IconMap) => void;
+  isModalOpen?: boolean;
 }
 
-export const Footer = ({ focusedKey, onIconClick }: FooterProps) => {
-  const icons = ["home", "essay", "community", "mypage"].map((key) => {
+export const Footer = ({
+  focusedKey,
+  onIconClick,
+  isModalOpen=false,
+}: FooterProps) => {
+  const icons = ["home", "myessay", "community", "mypage"].map((key) => {
     const isFocused = focusedKey === key;
-    const IconComponent = isFocused ? focusIcon[key as keyof IconMap] : disableIcon[key as keyof IconMap];
+    const IconComponent = isFocused
+      ? focusIcon[key as keyof IconMap]
+      : disableIcon[key as keyof IconMap];
 
     return (
       <div key={key} onClick={() => onIconClick(key as keyof IconMap)}>
@@ -71,10 +81,8 @@ export const Footer = ({ focusedKey, onIconClick }: FooterProps) => {
   });
 
   return (
-    <Container>
-      <Wrapper>
-        {icons}
-      </Wrapper>
+    <Container isModalOpen={isModalOpen}>
+      <Wrapper>{icons}</Wrapper>
     </Container>
   );
 };

@@ -1,5 +1,6 @@
 import React, { ChangeEvent, Dispatch, SetStateAction } from "react";
 import styled from "styled-components";
+import color from "@/shared/styles/color";
 
 const SInput = styled.input<{ hasError?: boolean }>`
   border-radius: 10px;
@@ -8,15 +9,19 @@ const SInput = styled.input<{ hasError?: boolean }>`
   height: 50px;
   flex-shrink: 0;
   box-sizing: border-box;
-  border: ${(props) => (props.hasError ? '2px solid #E43446' : 'none')};
+  border: ${(props) => (props.hasError ? "2px solid #E43446" : "none")};
   color: #fff;
   padding-left: 17px;
+  &:focus {
+    border: 1px solid ${color.pointcolor};
+    outline: none;
+  }
 `;
 interface InputProps<T> {
   placeholder: string;
   name: keyof T;
   setState: Dispatch<SetStateAction<T>>;
-  error?:boolean;
+  error?: boolean;
 }
 
 export const Input = <
@@ -25,7 +30,7 @@ export const Input = <
   placeholder,
   name,
   setState,
-  error
+  error,
 }: InputProps<T>) => {
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { value, name } = event.target;
@@ -37,7 +42,7 @@ export const Input = <
       },
     }));
   };
-  const inputType = name === 'password' ? 'password' : 'text';
+  const inputType = name === "password" ? "password" : "text";
   return (
     <SInput
       placeholder={placeholder}
