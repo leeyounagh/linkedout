@@ -6,7 +6,7 @@ import styled from "styled-components";
 import CircleCheck from "@/shared/assets/img/circlecheck.webp";
 import ActiveCircleCheck from "@/shared/assets/img/active_check.webp";
 interface CheckProps {
-  check: boolean;
+  check?: boolean;
   setCheck: React.Dispatch<React.SetStateAction<boolean>>;
   type: "general" | "circle";
 }

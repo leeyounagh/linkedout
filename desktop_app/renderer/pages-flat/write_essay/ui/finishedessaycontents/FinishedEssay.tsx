@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Dispatch, SetStateAction } from "react";
 import styled from "styled-components";
 import color from "@/shared/styles/color";
 import BottomSheet from "./BottomSheet";
 import Image from "next/image";
 import { useStore } from "@/shared/store";
-
+import { base64ToFile } from "../../lib/parsingbase64";
+import { isBase64 } from "../../lib/checkBase64";
 
 const Layout = styled.div`
   padding: 72px 147px;
@@ -60,15 +61,27 @@ function FinishedEssay({
   desc,
   tag,
   location,
-  imageFile
+  imageFile,
+  essayId,
+  editorType,
+  pageType,
+  setImageSrc,
+  isTagSave,
+  isLocationSave
 }: {
   title: string;
   desc: string;
   tag: string[];
-  location:string[];
-  imageFile:File | string | null
+  location: string[];
+  imageFile: string | File | null;
+  essayId: string | null;
+  editorType: string | null;
+  pageType: string | null;
+  setImageSrc: Dispatch<SetStateAction<any>>;
+  isTagSave:boolean;
+  isLocationSave:boolean;
 }) {
-  const [thumbnailImage, setThumbnailImage] = useState(null);
+  const [thumbnailImage, setThumbnailImage] = useState<any>(null);
   const user = useStore((state) => state.user);
   const [currentDateTime, setCurrentDateTime] = useState("");
 
@@ -83,17 +96,29 @@ function FinishedEssay({
   }, []);
 
   useEffect(() => {
-    const currentEssayId = localStorage.getItem("currentEssayId");
-    if (currentEssayId) {
-      const essayData = JSON.parse(localStorage.getItem("essayData") || "[]");
-      const storedEssayData = essayData.find((item: any) => {
-        return item.id === currentEssayId && item.imageSrc;
-      });
-      if (storedEssayData?.imageSrc) {
-        setThumbnailImage(storedEssayData?.imageSrc);
+    if (!editorType) {
+      const currentEssayId = localStorage.getItem("currentEssayId");
+      if (currentEssayId) {
+        const essayData = JSON.parse(localStorage.getItem("essayData") || "[]");
+        const storedEssayData = essayData.find((item: any) => {
+          return item.id === currentEssayId && item.imageSrc;
+        });
+        if (storedEssayData?.imageSrc) {
+          setThumbnailImage(storedEssayData?.imageSrc);
+        }
+      }
+    } else {
+      const tempThumbnail = localStorage.getItem("tempThumbnail");
+      if (tempThumbnail) {
+        setThumbnailImage(tempThumbnail ?? null);
+        if(isBase64(tempThumbnail)){
+          let tempImage = base64ToFile(tempThumbnail, "thumbnail image");
+          setImageSrc(tempImage);
+        }
       }
     }
   }, []);
+
   return (
     <Layout>
       <ThumbnailContainer>
@@ -106,7 +131,18 @@ function FinishedEssay({
           />
         )}
       </ThumbnailContainer>
-      <BottomSheet tag={tag} title={title} desc={desc} location={location} imageFile={imageFile}/>
+      <BottomSheet
+        tag={tag}
+        title={title}
+        desc={desc}
+        location={location}
+        imageFile={imageFile}
+        essayId={essayId}
+        editorType={editorType}
+        pageType={pageType}
+        isTagSave={isTagSave}
+        isLocationSave={isLocationSave}
+      />
       <Title>{title}</Title>
       <Desc dangerouslySetInnerHTML={{ __html: desc }} />
       <UserName>{user?.nickname}</UserName>

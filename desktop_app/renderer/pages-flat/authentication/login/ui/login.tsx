@@ -81,9 +81,9 @@ export const Login = () => {
       router.push("/web/main");
     }
   };
-  const calculateExpiryDate = (days: number): Date => {
+  const calculateExpiryDate = (minutes: number): Date => {
     const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + days);
+    expiryDate.setTime(expiryDate.getTime() + minutes * 60 * 1000); 
     return expiryDate;
   };
 
@@ -141,16 +141,15 @@ export const Login = () => {
         if (socialAccessToken && socialRefreshToken) {
           try {
             // 소셜로그인 쿼리로 토큰이 세팅 되어있을때
-            const accessTokenExpiry = calculateExpiryDate(7);
-            const refreshTokenExpiry = calculateExpiryDate(30);
+            const accessTokenExpiry = calculateExpiryDate(30);
 
             Cookies.set("accessToken", socialAccessToken, {
-              expires: accessTokenExpiry,
+              expires: 1,
               secure: true,
               sameSite: "Strict",
             });
             Cookies.set("refreshToken", socialRefreshToken, {
-              expires: refreshTokenExpiry,
+              expires: 30,
               secure: true,
               sameSite: "Strict",
             });

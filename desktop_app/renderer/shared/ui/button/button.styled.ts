@@ -9,6 +9,9 @@ interface SButtonProps {
 }
 
 export const SButton = styled.button<SButtonProps>`
+  border: none;
+  padding: 0;
+  margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;

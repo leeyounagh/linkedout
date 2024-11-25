@@ -52,7 +52,7 @@ interface TextFieldProps {
 }
 
 const mapper = {
-  published: "글을 발견!",
+  public: "글을 발견!",
   support: "에 요청하신 지원에 대한 내용이 업데이트 됐어요.",
   linkedout: "글을 찾았어요!",
 };

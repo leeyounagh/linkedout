@@ -7,6 +7,7 @@ import Reported from "@/shared/assets/img/reported.gif";
 import Published from "@/shared/assets/img/published.gif";
 import Image from "next/image";
 import color from "@/shared/styles/color";
+import { useRouter } from "next/navigation";
 
 const ChildrenDiv = styled.div`
   width: 100%;
@@ -74,10 +75,11 @@ const BtnDiv = styled.div`
   position: absolute;
   bottom: 23px;
 `;
-function CompleteModal() {
+function CompleteModal({ completedType }: { completedType: string | null }) {
   const searchParams = useSearchParams();
-  let modalType =  searchParams.get("type") as keyof typeof mapper;
+  let modalType = searchParams.get("type") as keyof typeof mapper;
   const [isOpen, setIsOpen] = useState(false);
+  const router =useRouter();
 
   useEffect(() => {
     if (modalType) {
@@ -169,12 +171,15 @@ function CompleteModal() {
     },
   };
   const handleModalOpen = () => {
-    setIsOpen(false)
-  }
-  console.log("searchParams", searchParams.get("id"));
+    setIsOpen(false);
+    if(completedType ==="linkedout"){
+      router.push("/web/main")
+    }
+
+  };
   //  private/published/linkedout/reported
-  if(!modalType){
-    return null
+  if (!modalType) {
+    return null;
   }
   return (
     <GeneralModal isOpen={isOpen} isBackgroundVisible={true}>
@@ -187,7 +192,13 @@ function CompleteModal() {
           </DescDiv>
         </ContentsDiv>
         <BtnDiv>
-          <Button text="닫기" style="square" type="point" scale="small" onClick={handleModalOpen} />
+          <Button
+            text="닫기"
+            style="square"
+            type="point"
+            scale="small"
+            onClick={handleModalOpen}
+          />
         </BtnDiv>
       </ChildrenDiv>
     </GeneralModal>

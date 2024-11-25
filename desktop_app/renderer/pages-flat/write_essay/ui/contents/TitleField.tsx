@@ -5,7 +5,7 @@ import { PrevButton } from "@/shared/ui/button";
 
 interface ButtonProps {
   isCancel: boolean;
-  isDelete: boolean;
+  isdelete: boolean;
 }
 
 const Layout = styled.div`
@@ -28,12 +28,12 @@ const Button = styled.button<ButtonProps>`
   border-radius: 4px;
   white-space: nowrap;
   z-index: 1;
-  ${({ isCancel, isDelete }) =>
+  ${({ isCancel, isdelete }) =>
     isCancel
       ? css`
           color: #686868;
         `
-      : isDelete
+      : isdelete
       ? css`
           color: #c13535;
         `
@@ -60,6 +60,8 @@ interface TitleFieldProps {
   handlenavigateBack: () => void;
   step: string;
   handleStep: () => void;
+  setStep: Dispatch<SetStateAction<string>>;
+  editorType: string | null;
 }
 
 function TitleField({
@@ -68,15 +70,44 @@ function TitleField({
   handlenavigateBack,
   step,
   handleStep,
+  setStep,
+  editorType,
 }: TitleFieldProps) {
+  const renderButton = () => {
+    if (step === "write") {
+      return (
+        <Button isCancel={false} isdelete={false} onClick={handleStep}>
+          완료
+        </Button>
+      );
+    }
+
+    if (!editorType) {
+      return (
+        <Button
+          isCancel={false}
+          isdelete={step === "finish"}
+          onClick={handleStep}
+        >
+          삭제
+        </Button>
+      );
+    }
+
+    return null;
+  };
   return (
     <Layout>
       {step === "write" ? (
-        <Button isCancel={true} isDelete={false} onClick={handlenavigateBack}>
+        <Button isCancel={true} isdelete={false} onClick={handlenavigateBack}>
           취소
         </Button>
       ) : (
-        <PrevButton onClick={handleStep}/>
+        <PrevButton
+          onClick={() => {
+            setStep("write");
+          }}
+        />
       )}
 
       <TitleDiv>
@@ -85,17 +116,12 @@ function TitleField({
             value={title}
             placeholder="제목을 입력해 주세요"
             onChange={(e) => setTitle(e.target.value)}
-            isTextCenter ={true}
+            isTextCenter={true}
+            maxLength={30}
           />
         )}
       </TitleDiv>
-      <Button
-        isCancel={false}
-        isDelete={step === "finish"}
-        onClick={handleStep}
-      >
-        {step === "write" ? "완료" : "삭제"}
-      </Button>
+      {renderButton()}
     </Layout>
   );
 }

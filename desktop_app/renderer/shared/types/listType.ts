@@ -8,7 +8,7 @@ export interface Alert {
     title: string;
     content: string;
     body: string;
-    type:"published" | "support" | "linkedout";
+    type:"public" | "support" | "linkedout";
     read: boolean;
     createdDate: string;
     essay: {

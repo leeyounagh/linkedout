@@ -11,6 +11,9 @@ const slideIn = keyframes`
     right: 0;
   }
 `;
+const Header =styled.header`
+ height:50px;
+`
 
 const slideOut = keyframes`
   from {
@@ -42,6 +45,8 @@ const Layout = styled.div<{ isOpen: boolean }>`
   height: auto;
   min-height: 95vh;
   overflow-y: auto;
+  overflow-x: hidden;
+  border-left:1px solid #1a1a1a;
 `;
 
 const CloseButton = styled.div`
@@ -51,6 +56,7 @@ const CloseButton = styled.div`
   top: 3vh;
   right: 20px;
   cursor: pointer;
+  z-index:90;
 `;
 
 const H1 = styled.h1`
@@ -79,10 +85,13 @@ export const AlarmModal = ({
 }: AlarmModalProps) => {
   return (
     <Layout isOpen={isOpen}>
+      <Header>
       <H1>알림</H1>
       <CloseButton onClick={handleAlarmButtonClick}>
         <X />
       </CloseButton>
+      </Header>
+
       {children}
     </Layout>
   );

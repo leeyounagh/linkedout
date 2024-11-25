@@ -6,7 +6,7 @@ const Layout = styled.div`
   background: #121212;
   width: 100%;
   height: 26.34vh;
-  position: absolute;
+  position: fixed;
   bottom: 0px;
   z-index: 10;
 `;
@@ -24,12 +24,31 @@ interface BottomValue {
 interface optionType {
   bottomValue: BottomValue;
   setBottomValue: React.Dispatch<React.SetStateAction<BottomValue>>;
+  setIsTagSave: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsLocationSave: React.Dispatch<React.SetStateAction<boolean>>;
+  isTagSave:boolean;
+  isLocationSave:boolean;
 }
 
-function BottomField({ bottomValue, setBottomValue }: optionType) {
+function BottomField({
+  bottomValue,
+  setBottomValue,
+  setIsTagSave,
+  setIsLocationSave,
+  isTagSave,
+  isLocationSave
+}: optionType) {
   return (
     <Layout>
-      <TagField activeTag={bottomValue.active} bottomValue={bottomValue} setBottomValue={setBottomValue}/>
+      <TagField
+        activeTag={bottomValue.active}
+        bottomValue={bottomValue}
+        setBottomValue={setBottomValue}
+        setIsTagSave={setIsTagSave}
+        setIsLocationSave={setIsLocationSave}
+        isTagSave={isTagSave}
+        isLocationSave={isLocationSave}
+      />
     </Layout>
   );
 }

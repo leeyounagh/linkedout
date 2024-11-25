@@ -16,6 +16,7 @@ interface InputProps {
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   onKeyPress?: (e: KeyboardEvent<HTMLInputElement>) => void;
   isTextCenter?:boolean;
+  maxLength?: number;
 }
 
 const Input = styled.input<{
@@ -52,6 +53,7 @@ const BaseInput: React.FC<InputProps> = ({
   onChange,
   onKeyPress,
   isTextCenter=false,
+  maxLength=40,
   ...props
 }) => {
   return (
@@ -62,6 +64,7 @@ const BaseInput: React.FC<InputProps> = ({
       onChange={onChange}
       onKeyDown={onKeyPress}
       isTextCenter={isTextCenter}
+      maxLength={maxLength}
       {...props}
     />
   );

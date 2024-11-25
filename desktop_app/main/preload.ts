@@ -21,10 +21,15 @@ contextBridge.exposeInMainWorld("Electron", {
   },
   requestDeviceInfo: () => ipcRenderer.send('request-device-info'),
   onDeviceInfo: (callback:any) => ipcRenderer.on('device-info', (event, data) => callback(data)),
-  getLocation: () => ipcRenderer.invoke('get-location')
+  getLocation: () => ipcRenderer.invoke('get-location'),
+  ipcRenderer: {
+    send: (channel:any, data:any) => ipcRenderer.send(channel, data),
+    on: (channel:any, func:any) => ipcRenderer.on(channel, (event, ...args) => func(...args)),
+  },
 });
 
-const senderId = 710166131124; // Replace 'yourSenderID' with your actual sender ID
+const senderId = process.env.SENDER_ID;
+
 ipcRenderer.send(START_NOTIFICATION_SERVICE, senderId);
 
 // Listen for service successfully started
@@ -134,6 +139,7 @@ window.addEventListener('DOMContentLoaded', () => {
       maxButton.style.display = 'block';
     }
   });
+
 });
 
 const handler = {

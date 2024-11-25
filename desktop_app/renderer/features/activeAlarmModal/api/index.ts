@@ -4,6 +4,7 @@ import { pageType, Alert, AlarmListResponse } from "@/shared/types";
 interface AlarmListResult {
   alerts: Alert[];
   totalPage: number;
+  total: number;
 }
 
 export const getAlramList = async ({
@@ -19,19 +20,26 @@ export const getAlramList = async ({
       params,
     });
 
-    return { alerts: data?.alerts || [], totalPage: data?.totalPage || 0 };
+    return {
+      alerts: data?.alerts || [],
+      totalPage: data?.totalPage || 0,
+      total: data?.total,
+    };
   } catch (err) {
     console.log("Err", err);
-    return { alerts: [], totalPage: 0 };
+    return { alerts: [], totalPage: 0, total: 0 };
   }
 };
+
+interface UpdateStatusResponse {
+  data?: any[];
+}
 export const updateReadStatus = async (
   id: number,
-  list: Alert[],
-  setAlarmList: React.Dispatch<React.SetStateAction<Alert[]>>
-) => {
+  list:any[],
+) : Promise<UpdateStatusResponse | undefined> => {
   try {
-    const alertToUpdate = list.find(alert => alert.id === id);
+    const alertToUpdate = list.find((alert) => alert.id === id);
 
     if (alertToUpdate && alertToUpdate.read) {
       console.log("Alert is already read.");
@@ -39,13 +47,15 @@ export const updateReadStatus = async (
     }
 
     const { status } = await fetchData(`alerts/read/${id}`, "patch");
+    console.log("status", status);
     if (status === 200) {
-      const updatedList = list.map(alert => 
+      const updatedList = list.map((alert) =>
         alert.id === id ? { ...alert, read: true } : alert
       );
-      setAlarmList(updatedList);
+      return { data: updatedList };
     }
   } catch (err) {
+    return { data: [] };
     console.log("Err", err);
   }
 };

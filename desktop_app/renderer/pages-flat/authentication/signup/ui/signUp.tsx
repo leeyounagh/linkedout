@@ -7,7 +7,7 @@ import { Button } from "@/shared/ui/button";
 import styled from "styled-components";
 import { submitSignupForm } from "../api";
 import { GeneralToast } from "@/shared/ui/toast";
-import { BottomSeet } from "@/shared/ui/modal";
+import { BottomSheet } from "@/shared/ui/modal";
 import VerificationField from "./contents/VerificationField";
 
 const ButtonLayout = styled.div`
@@ -39,7 +39,7 @@ const isButtonEnabled = (inputData: InputData): boolean => {
 };
 
 function SignUP() {
-  const [inputData, setinputData] = useState({
+  const [inputData, setInputData] = useState({
     id: { value: "", placeholder: "이메일 주소 또는 아이디" },
     password: { value: "", placeholder: "비밀번호" },
   });
@@ -64,20 +64,19 @@ function SignUP() {
     setIsButtonEnabled(isButtonEnabled(inputData));
   }, [inputData]);
 
-  const onSubmit = async () => {
-    setIsVerificationOpen(false);
-    if (!isEmailValid) {
-      setError((prev) => ({
-        ...prev,
-        id: true,
-      }));
-    }
-    if (!isPasswordValid) {
-      setError((prev) => ({
-        ...prev,
-        password: true,
-      }));
-    }
+  const handleError = () => {
+    setError((prev) => ({
+      ...prev,
+      id: !isEmailValid,
+      password: !isPasswordValid,
+    }));
+  };
+  const onSubmit = async (type?: string) => {
+    if (type !== "retry") {
+      setIsVerificationOpen(false);
+    } 
+    console.log("test")
+    handleError();
 
     if (!isButtonEnabledState) {
       return;
@@ -119,9 +118,9 @@ function SignUP() {
         positionTop={hasError ? "" : "45.4vh"}
       />
       {isVerificationOpen && (
-        <BottomSeet isOpen={isVerificationOpen}>
-          <VerificationField />
-        </BottomSeet>
+        <BottomSheet isOpen={isVerificationOpen}>
+          <VerificationField onRetry ={onSubmit} />
+        </BottomSheet>
       )}
 
       <PrevButton />
@@ -131,7 +130,7 @@ function SignUP() {
       />
       <InputField
         data={inputData}
-        setData={setinputData}
+        setData={setInputData}
         isValidateText={true}
         error={error}
       />
@@ -141,7 +140,7 @@ function SignUP() {
           style="square"
           scale="large"
           type={isButtonEnabledState ? "point" : "disable"}
-          onClick={onSubmit}
+          onClick={() => onSubmit()}
         />
       </ButtonLayout>
     </DefaultLayout>

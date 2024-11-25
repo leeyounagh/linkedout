@@ -87,11 +87,13 @@ const CustomToolbar = ({
   tagName,
   tagHandler,
   handleSave,
+  handleCustomFontSizeClick
 }: {
   isModalOpen: boolean;
   tagName: string;
   tagHandler: (name: string) => void;
   handleSave: () => void;
+  handleCustomFontSizeClick:()=> void;
 }) => {
   const [buttonStates, setButtonStates] = useState({
     bold: false,
@@ -119,11 +121,15 @@ const CustomToolbar = ({
   return (
     <Container id="toolbar">
       <IconDiv>
-        <Button className="ql-customFontSize">
+        <Button
+          className="ql-customFontSize"
+          onClick={handleCustomFontSizeClick}
+        >
           <Img
             src={isModalOpen ? TextHover.src : TextIcon.src}
             alt="Font Size"
             className="customFontSizeButton"
+
           />
         </Button>
         <Button

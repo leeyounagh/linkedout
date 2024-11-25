@@ -98,11 +98,13 @@ function Editor({
   setValue,
   tagValue,
   setTagValue,
+  editorType
 }: {
   value: string;
   setValue: Dispatch<SetStateAction<string>>;
   tagValue: TagValue;
   setTagValue: Dispatch<SetStateAction<TagValue>>;
+  editorType:string|null;
 }) {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -111,10 +113,11 @@ function Editor({
   const [editorWidth, setEditorWidth] = useState<number>(0);
   const [isShowModal, setIsShowModal] = useState(false);
   const [isMiniModalOpen, setIsMiniModalOpen] = useState(false);
+  let tempThumbnail = localStorage.getItem("tempThumbnail");
 
   useEffect(() => {
     const currentEssayId = localStorage.getItem("currentEssayId");
-    if (currentEssayId) {
+    if (currentEssayId&&!tempThumbnail) {
       const essayData = JSON.parse(localStorage.getItem("essayData") || "[]");
       const storedEssayData = essayData.find((item: any) => {
         return item.id === currentEssayId && item.imageSrc;
@@ -122,8 +125,11 @@ function Editor({
       if (storedEssayData?.imageSrc) {
         setThumbnailImage(storedEssayData.imageSrc);
       }
+    }else if(tempThumbnail){
+      setThumbnailImage(tempThumbnail);
     }
-  }, []);
+    
+  }, [editorType,tempThumbnail]);
 
   useEffect(() => {
     const updateEditorWidth = () => {
@@ -172,6 +178,7 @@ function Editor({
       convertFileToBase64(file, (base64Url: string) => {
         setThumbnailImage(base64Url);
         insertImageIntoEditor(base64Url);
+        localStorage.setItem('tempThumbnail', base64Url);
       });
     }
   };
@@ -204,7 +211,7 @@ function Editor({
   };
 
   const handleCustomFontSizeClick = () => {
-    setIsModalOpen(true);
+    setIsModalOpen(!isModalOpen);
   };
   const handleBoldClick = () => {
     if (quillRef.current) {
@@ -235,7 +242,7 @@ function Editor({
       toolbar: {
         container: "#toolbar",
         handlers: {
-          customFontSize: handleCustomFontSizeClick,
+          // customFontSize: handleCustomFontSizeClick,
           "custom-bold": handleBoldClick,
           "custom-underline": handleUnderlineClick,
           "custom-strike": handleStrikeClick,
@@ -301,6 +308,7 @@ function Editor({
         tagName={tagValue.active}
         tagHandler={tagHandler}
         handleSave={handleSave}
+        handleCustomFontSizeClick={handleCustomFontSizeClick}
       />
       {thumbnailImage && (
         <ThumbnailContainer>

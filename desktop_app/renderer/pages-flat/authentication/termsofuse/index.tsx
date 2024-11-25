@@ -73,6 +73,7 @@ function index() {
       }
     );
   }, []);
+
   const handelModalOpen = () => {
     setIsModalOpen(!isModalOpen);
   };

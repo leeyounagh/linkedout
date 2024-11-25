@@ -3,12 +3,15 @@ import styled from "styled-components";
 import dynamic from "next/dynamic";
 import TitleField from "./contents/TitleField";
 import BottomField from "./contents/BottomField";
-import { fetchData } from "@/shared/api/fetchData";
 import { v4 as uuidv4 } from "uuid";
 import { useRouter } from "next/router";
 import { RoundConfirm } from "@/shared/ui/modal";
 import FinishedEssay from "./finishedessaycontents/FinishedEssay";
-import { base64ToFile } from "../utils/parsingbase64";
+import { base64ToFile } from "../lib/parsingbase64";
+import { useSearchParams } from "next/navigation";
+import { getEssayDetail } from "@/shared/api";
+import { isBase64 } from "../lib/checkBase64";
+
 
 const Editor = dynamic(
   () => import("@/shared/ui/editor").then((mod) => mod.Editor),
@@ -33,7 +36,8 @@ const EditorContainer = styled.div<{ isBottomFieldVisible: boolean }>`
   .ql-editor {
     flex-grow: 1;
     overflow-y: auto;
-  }
+  }'
+  border:3px solid red;
 `;
 interface BottomValue {
   active: "tag" | "location";
@@ -65,55 +69,102 @@ export const WriteEssay = () => {
       values: [],
     },
   });
-  const [imageSrc, setImageSrc] = useState(null);
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [id, setId] = useState<string>(defaultId);
   const [isCancel, setIsCancel] = useState(false);
   const [step, setStep] = useState("write");
-  const currentId = localStorage.getItem("currentEssayId");
+  let currentId = localStorage.getItem("currentEssayId");
   const isBottomFieldVisible =
     bottomValue.active === "tag" || bottomValue.active === "location";
+  const searchParams = useSearchParams();
+  const pageType = searchParams.get("pageType");
+  const essayId = searchParams.get("essayId");
+  const editorType = searchParams.get("editorType");
+  const [isTagSave, setIsTagSave] = useState(false);
+  const [isLocationSave, setIsLocationSave] = useState(false);
 
   useEffect(() => {
-    const processEssayData = (id: string) => {
-      const storedData = JSON.parse(localStorage.getItem("essayData") || "[]");
-      const entry = storedData.find((item: Essay) => item.id === id);
-      if (entry) {
-        setTitle(entry.title);
-        setValue(entry.value);
-        setBottomValue(entry.bottomValue);
-        setImageSrc(entry.imageSrc);
+    if (editorType !== "edit") {
+      // 일반 글쓰기 모드 일때
+      const processEssayData = (id: string) => {
+        const storedData = JSON.parse(
+          localStorage.getItem("essayData") || "[]"
+        );
+        const entry = storedData.find((item: Essay) => item.id === id);
+        if (entry) {
+          setTitle(entry.title);
+          setValue(entry.value);
+          setBottomValue(entry.bottomValue);
+          setImageSrc(entry.imageSrc);
+        }
+      };
+      if (currentId) {
+        processEssayData(currentId);
+        localStorage.setItem("currentEssayId", currentId);
       }
-    };
-    if (currentId) {
-      processEssayData(currentId);
-      localStorage.setItem("currentEssayId", currentId);
+    } else {
+      getExistEssayDetail();
     }
   }, []);
 
-  useEffect(() => {
-    if (id) {
-      const currentId = localStorage.getItem("currentEssayId");
-      const essayData = JSON.parse(localStorage.getItem("essayData") || "[]");
-
-      const existingEssayIndex = essayData.findIndex(
-        (item: any) => item.id === id
+  const getExistEssayDetail = async () => {
+    try {
+      const { data } = await getEssayDetail(
+        pageType || "public",
+        Number(essayId) || 0,
+        null
       );
-      if (!currentId) {
-        if (existingEssayIndex > -1) {
-          const newId = uuidv4();
-          essayData[existingEssayIndex].id = newId;
-          localStorage.setItem("essayData", JSON.stringify(essayData));
-        } else {
-          localStorage.setItem("currentEssayId", id);
+      setTitle(data?.essay?.title ?? "");
+      setValue(data?.essay?.content ?? "");
+      setBottomValue((prev) => ({
+        ...prev,
+        tag: {
+          ...prev.tag,
+          values: data?.essay.tags.map((tag) => tag.name) || [],
+        },
+      }));
+      setImageSrc(data?.essay?.thumbnail ?? null);
+      localStorage.setItem("tempThumbnail", data?.essay?.thumbnail ?? "");
+      if((data?.essay?.tags ?? []).length > 0) {
+        setIsTagSave(true)
+      }
+      if((data?.essay?.location ?? "").length > 0) {
+        setIsLocationSave(true)
+      }
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
+  useEffect(() => {
+    if (editorType !== "edit") {
+      // 일반 글쓰기 모드 일때 현재의 에세이 id를 가져와서 기존 저장된 에세이에 해당하는 id가 없으면 내용 추가하는 로직
+      if (id) {
+        const currentId = localStorage.getItem("currentEssayId");
+        const essayData = JSON.parse(localStorage.getItem("essayData") || "[]");
+        const existingEssayIndex = essayData.findIndex(
+          (item: any) => item.id === id
+        );
+        if (!currentId) {
+          if (existingEssayIndex > -1) {
+            const newId = uuidv4();
+            essayData[existingEssayIndex].id = newId;
+            localStorage.setItem("essayData", JSON.stringify(essayData));
+          } else {
+            localStorage.setItem("currentEssayId", id);
+          }
         }
       }
     }
   }, [id, step]);
 
   useEffect(() => {
-    saveToLocalStorage();
-    const interval = setInterval(saveToLocalStorage, 30000);
-    return () => clearInterval(interval);
+    if (editorType !== "edit") {
+      // 일반 글쓰기 모드일때 로컬스트리지에 저장하는 로직
+      saveToLocalStorage();
+      const interval = setInterval(saveToLocalStorage, 30000);
+      return () => clearInterval(interval);
+    }
   }, [title, value, bottomValue]);
 
   const saveToLocalStorage = () => {
@@ -126,6 +177,8 @@ export const WriteEssay = () => {
     const existingImageSrc =
       existingEntryIndex > -1 && storedData[existingEntryIndex].imageSrc
         ? storedData[existingEntryIndex].imageSrc
+        : imageSrc && imageSrc.length > 0
+        ? imageSrc
         : "";
 
     const newData = {
@@ -148,11 +201,14 @@ export const WriteEssay = () => {
 
   const handlecancle = () => {
     const storedData = JSON.parse(localStorage.getItem("essayData") || "[]");
-    let deleteSaveData = storedData.filter(
-      (item: Essay) => item.id !== currentId
-    );
-    localStorage.setItem("essayData", JSON.stringify(deleteSaveData));
+    if (editorType !== "edit") {
+      let deleteSaveData = storedData.filter(
+        (item: Essay) => item.id !== currentId
+      );
+      localStorage.setItem("essayData", JSON.stringify(deleteSaveData));
+    }
     localStorage.setItem("currentEssayId", "");
+    localStorage.setItem("tempThumbnail", "");
     if (step === "finish") {
       setIsCancel(!isCancel);
       setStep("write");
@@ -193,12 +249,17 @@ export const WriteEssay = () => {
           setValue={setValue}
           tagValue={bottomValue}
           setTagValue={setBottomValue}
+          editorType={editorType ?? ""}
         />
       </EditorContainer>
       {isBottomFieldVisible && (
         <BottomField
           bottomValue={bottomValue}
           setBottomValue={setBottomValue}
+          setIsTagSave={setIsTagSave}
+          setIsLocationSave={setIsLocationSave}
+          isTagSave={isTagSave}
+          isLocationSave={isLocationSave}
         />
       )}
     </>
@@ -210,7 +271,15 @@ export const WriteEssay = () => {
       desc={value}
       tag={bottomValue?.tag.values}
       location={bottomValue?.location.values}
-      imageFile={imageSrc ? base64ToFile(imageSrc, "thumbnail image") : null}
+      imageFile={isBase64(imageSrc) 
+        ? base64ToFile(imageSrc, "thumbnail image") 
+        : imageSrc || null}
+      essayId={essayId || null}
+      editorType={editorType || null}
+      pageType={pageType}
+      setImageSrc={setImageSrc}
+      isTagSave={isTagSave}
+      isLocationSave={isLocationSave}
     />
   );
 
@@ -250,6 +319,8 @@ export const WriteEssay = () => {
         handlenavigateBack={handlenavigateBack}
         step={step}
         handleStep={handleStep}
+        setStep={setStep}
+        editorType={editorType ?? null}
       />
       {/* 본문 에디터 또는 완성된 글 */}
       {step === "write" ? renderEditor() : renderFinishedEssay()}

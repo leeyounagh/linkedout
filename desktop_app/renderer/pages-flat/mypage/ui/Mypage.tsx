@@ -1,11 +1,17 @@
 import React from "react";
-import * as Styled from "./mypage.styled";
-import ActiveFooter from "@/features/activeFooter/ui/activeFooter";
+import { ActiveSideBar } from "@/features/activesidebar";
+import styled from "styled-components";
+
+const Layout = styled.main`
+  width: 100vw;
+  min-height: 90vh;
+  overflow-y: auto;
+`;
 
 export const Mypage = () => {
   return (
-    <Styled.SLayout>
-      <ActiveFooter />
-    </Styled.SLayout>
+    <Layout>
+      <ActiveSideBar></ActiveSideBar>
+    </Layout>
   );
 };

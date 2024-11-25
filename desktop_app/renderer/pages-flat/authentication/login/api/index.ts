@@ -12,12 +12,11 @@ export const checkFirstLogin = async () => {
   const isFisrstLogin = response.data.data;
   return isFisrstLogin;
 };
-const calculateExpiryDate = (days: number): Date => {
+const calculateExpiryDate = (minutes: number): Date => {
   const expiryDate = new Date();
-  expiryDate.setDate(expiryDate.getDate() + days);
+  expiryDate.setTime(expiryDate.getTime() + minutes * 60 * 1000);
   return expiryDate;
 };
-
 export const localLogin = async (body: bodyType, autoLoginCheck: boolean) => {
   try {
     const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + "auth/login", body);
@@ -29,17 +28,15 @@ export const localLogin = async (body: bodyType, autoLoginCheck: boolean) => {
     const refreshToken = data.refreshToken;
 
     if (accessToken && refreshToken) {
-      const accessTokenExpiry = calculateExpiryDate(7); 
-      const refreshTokenExpiry = calculateExpiryDate(30);
-
+      const accessTokenExpiry = calculateExpiryDate(30); 
       if (autoLoginCheck) {
         Cookies.set("accessToken", accessToken, {
-          expires: accessTokenExpiry,
+          expires: 1,
           secure: true,
           sameSite: "Strict",
         });
         Cookies.set("refreshToken", refreshToken, {
-          expires: refreshTokenExpiry,
+          expires: 30,
           secure: true,
           sameSite: "Strict",
         });

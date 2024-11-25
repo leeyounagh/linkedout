@@ -77,6 +77,8 @@ export const createWindow = (
     ...state,
     ...options,
     autoHideMenuBar: true,
+    minWidth: 1200,
+    minHeight: 700,
     icon: appIcon,
     frame: false,
     backgroundColor: "#101012",
@@ -89,7 +91,7 @@ export const createWindow = (
     },
   });
 
-
+  
   let machineId = machineIdSync();
 
   ipcMain.on('request-device-info', (event) => {
@@ -141,6 +143,7 @@ ipcMain.on("maximize-window", (event) => {
     win?.maximize();
   }
 });
+
 
 ipcMain.on("restore-window", (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);

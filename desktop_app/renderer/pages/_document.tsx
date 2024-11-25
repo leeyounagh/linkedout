@@ -39,6 +39,7 @@ class MyDocument extends Document {
       <Html lang="en">
         <Head id="titlebar">
           <link rel="icon" href="/images/menu_logo.png" />
+          
         </Head>
         <body>
           <div id="titlebar">

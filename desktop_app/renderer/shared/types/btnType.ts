@@ -7,9 +7,9 @@ export type ScaleType = SquareScaleType | RoundScaleType;
 
 export interface BtnType {
     text: string;
-    style: StyleType;
-    scale: SquareScaleType | RoundScaleType;
-    type: ButtonType;
+    style?: StyleType;
+    scale?: SquareScaleType | RoundScaleType;
+    type?: ButtonType;
 }
 
 export type styleObjType = {

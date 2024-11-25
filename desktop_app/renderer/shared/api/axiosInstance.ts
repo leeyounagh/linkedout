@@ -30,7 +30,7 @@ AxiosInstance.interceptors.response.use(
         sessionStorage.setItem("accessToken", newAccessToken);
       } else {
         Cookies.set("accessToken", newAccessToken, {
-          expires: 7,
+          expires:1,
           secure: true,
           sameSite: "Strict",
         });
@@ -38,14 +38,29 @@ AxiosInstance.interceptors.response.use(
     }
     return response;
   },
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      Cookies.remove("refreshToken");
-      Cookies.remove("accessToken");
-      sessionStorage.removeItem("accessToken");
-      sessionStorage.removeItem("refreshToken");
-      window.location.href = "/web/login";
+  async (error) => {
+    const originalRequest = error.config;
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true;
+      const refreshToken =
+        Cookies.get("refreshToken") || sessionStorage.getItem("refreshToken");
+      if (refreshToken) {
+        // originalRequest.headers["x-refresh-token"] = refreshToken;
+        const newResponse = await AxiosInstance(originalRequest);
+        return newResponse;
+      } else {
+        Cookies.remove("refreshToken");
+        Cookies.remove("accessToken");
+        sessionStorage.removeItem("accessToken");
+        sessionStorage.removeItem("refreshToken");
+        window.location.href = "/web/login";
+      }
     }
+
     return Promise.reject(error);
   }
 );

@@ -2,11 +2,12 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "downlevelIteration": true,
     "paths": {
       "@/shared/*": ["shared/*"],
       "@/features/*": ["features/*"],
       "@/pages/*": ["pages/*"],
-      "@/pages-flat/*": ["pages-flat/*"]
+      "@/pages-flat/*": ["pages-flat/*"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "../electron-push-receiver.d.ts"],

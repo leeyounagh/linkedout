@@ -38,7 +38,7 @@ function Letter({
   img: StaticImageData;
   width: number;
   height: number;
-  type: "published" | "support" | "linkedout";
+  type: "public" | "support" | "linkedout";
   title: string;
   createdDate: string;
   handleCloseModal?: () => void;

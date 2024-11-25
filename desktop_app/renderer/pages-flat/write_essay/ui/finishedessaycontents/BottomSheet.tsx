@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { BottomSeet } from "@/shared/ui/modal";
+import Modal  from "@/shared/ui/modal/BottomSheet";
 import color from "@/shared/styles/color";
 import NextBtnImg from "@/shared/assets/img/next_Icon.svg";
-import { changeGroupChain, changeSingleChain } from "../../utils/changeChain";
+import { changeGroupChain, changeSingleChain } from "../../lib/changeChain";
 import { useRouter } from "next/navigation";
 import Savebtn from "@/shared/assets/img/button/button_save.webp";
 import PublishBtn from "@/shared/assets/img/button/button_publish.webp";
 import LinkedoutBtn from "@/shared/assets/img/button/button_linkedout.webp";
 import Image from "next/image";
 import { submitEssay } from "../../api";
+import { updateEssayDetail } from "@/shared/api/essay";
+import { ColorToast } from "@/shared/ui/toast";
 
 const Layout = styled.div<{ isOpen: boolean }>`
   position: fixed;
@@ -144,11 +146,20 @@ const BtnDiv = styled.div`
   flex-direction: column;
   gap: 10px;
 `;
+
 export interface Essay {
   id: string;
   title: string;
   timestamp: string;
   checked: boolean;
+}
+interface bodyType {
+  title: string;
+  content: string;
+  status: string;
+  tags: string[];
+  location?: string;
+  thumbnail?: string;
 }
 function BottomSheet({
   tag,
@@ -156,12 +167,22 @@ function BottomSheet({
   desc,
   location,
   imageFile,
+  essayId,
+  editorType,
+  pageType,
+  isTagSave,
+  isLocationSave,
 }: {
   tag: string[];
   title: String;
   desc: string;
   location: string[];
   imageFile: File | string | null;
+  essayId: string | null;
+  editorType: string | null;
+  pageType: string | null;
+  isTagSave: boolean;
+  isLocationSave: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(true);
   const [chainStep, setChainStep] = useState("zero");
@@ -169,6 +190,8 @@ function BottomSheet({
   const [step, setStep] = useState(1);
   const router = useRouter();
   const currentId = localStorage.getItem("currentEssayId");
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   const handleModalOpen = () => {
     setIsOpen(!isOpen);
@@ -234,20 +257,23 @@ function BottomSheet({
             <NextBtnImg alt="Next" />
           </NextBtn>
         </LoopDiv>
-        <TagDiv>
-          {tag.map((item) => (
-            <P>{item}</P>
-          ))}
-        </TagDiv>
+        {isTagSave && (
+          <TagDiv>
+            {tag.map((item) => (
+              <P>{item}</P>
+            ))}
+          </TagDiv>
+        )}
       </>
     );
   };
 
   const handleSaveEssay = async (e: React.MouseEvent<HTMLElement>) => {
     const { id } = e.currentTarget.dataset;
+    const pageType = id === "private" ? "private" : "public";
     try {
       if (title.length === 0 || desc.length === 0) {
-        alert("입력란을 확인해 주세요.");
+        showToastMessage("입력란을 확인해 주세요.");
         return;
       }
 
@@ -257,40 +283,107 @@ function BottomSheet({
         formData.append("image", imageFile);
       }
 
-      const body = {
+      const body: bodyType = {
         title: String(title),
         content: String(desc),
         status: String(id),
-        tags: tag,
+        tags: isTagSave ? tag : [],
         location: "",
-        thumbnail: "",
       };
 
       if (location.length > 0) {
         const tempLocation = location[0];
-        if (tempLocation) {
+        if (tempLocation && isLocationSave) {
           const numbersOnly = tempLocation.match(/[\d.]+/g)?.join(", ");
           body.location = String(numbersOnly);
+        } else {
+          delete body?.location;
         }
+      } else {
+        delete body?.location;
       }
 
       const { data, status } = await submitEssay(formData, body);
 
       if (status === 201) {
-        const storedData = JSON.parse(localStorage.getItem("essayData") || "[]");
+        const storedData = JSON.parse(
+          localStorage.getItem("essayData") || "[]"
+        );
         let deleteSaveData = storedData.filter(
           (item: Essay) => item.id !== currentId
         );
         localStorage.setItem("essayData", JSON.stringify(deleteSaveData));
         localStorage.setItem("currentEssayId", "");
-        router.push(`/web/essay_details?id=${data.id}&type=${id}`);
+        localStorage.setItem("tempThumbnail", "");
+        router.push(
+          `/web/essay_details?id=${data.id}&type=${id}&pageType=${pageType}`
+        );
+      } else {
+        showToastMessage("게시물 등록에 실패했습니다.");
       }
     } catch (err) {
       console.log("err", err);
-      alert("게시물 등록에 실패했습니다.");
+      showToastMessage("게시물 등록에 실패했습니다.");
+    }
+  };
+  const updateSavedEssay = async (e: React.MouseEvent<HTMLElement>) => {
+    const { id } = e.currentTarget.dataset;
+    try {
+      const body: bodyType = {
+        title: String(title),
+        content: String(desc),
+        status: String(pageType),
+        tags: isTagSave ? tag : [],
+        location: "",
+      };
+      if (location.length > 0) {
+        const tempLocation = location[0];
+        if (tempLocation && isLocationSave) {
+          const numbersOnly = tempLocation.match(/[\d.]+/g)?.join(", ");
+          body.location = String(numbersOnly);
+        } else {
+          delete body?.location;
+        }
+      } else {
+        delete body?.location;
+      }
+      const formData = new FormData();
+      if (imageFile instanceof File) {
+        formData.append("image", imageFile);
+      }
+      const { status } = await updateEssayDetail(
+        formData,
+        body,
+        Number(essayId)
+      );
+      if (status === 200) {
+        localStorage.setItem("tempThumbnail", "");
+        router.push(
+          `/web/essay_details?id=${essayId}&type=${id}&pageType=${pageType}`
+        );
+      }
+    } catch (err) {
+      console.log("err", err);
     }
   };
 
+  const showToastMessage = (message: string) => {
+    setToastMessage(message);
+    setShowToast(true);
+
+    setTimeout(() => {
+      setShowToast(false);
+      setToastMessage("");
+    }, 3000);
+  };
+
+  const saveOrUpdateEssay = (e: React.MouseEvent<HTMLElement>) => {
+    if (editorType === "edit") {
+      updateSavedEssay(e);
+    } else {
+      handleSaveEssay(e);
+    }
+  };
   const stepTwoRenderer = () => {
     return (
       <StepTwoContainer>
@@ -308,7 +401,7 @@ function BottomSheet({
               height={60}
               alt="save_btn"
               data-id="private"
-              onClick={(e) => handleSaveEssay(e)}
+              onClick={saveOrUpdateEssay}
             />
             <Image
               src={PublishBtn.src}
@@ -316,7 +409,7 @@ function BottomSheet({
               height={60}
               alt="publish_btn"
               data-id="published"
-              onClick={(e) => handleSaveEssay(e)}
+              onClick={saveOrUpdateEssay}
             />
             <Image
               src={LinkedoutBtn.src}
@@ -324,7 +417,7 @@ function BottomSheet({
               height={60}
               alt="linkedout_btn"
               data-id="linkedout"
-              onClick={(e) => handleSaveEssay(e)}
+              onClick={saveOrUpdateEssay}
             />
           </BtnDiv>
         </StepTwoWrapper>
@@ -342,14 +435,15 @@ function BottomSheet({
 
   return (
     <Layout isOpen={isOpen}>
-      <BottomSeet isOpen={isOpen} size="large">
+      <ColorToast type="alert" text={toastMessage} onClose={()=>setShowToast(false)} isShowToast={showToast}/>
+      <Modal isOpen={isOpen} size="large">
         <Wrapper onClick={handleDialogClick}>
           <TopNavigatorDiv>
             <NavigatorChip onClick={handleModalOpen}></NavigatorChip>
           </TopNavigatorDiv>
           {step === 2 ? stepTwoRenderer() : stepOneRenderer()}
         </Wrapper>
-      </BottomSeet>
+      </Modal>
     </Layout>
   );
 }

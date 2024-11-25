@@ -15,7 +15,6 @@ const Container = styled.footer<{ isModalOpen: boolean }>`
   width: ${({ isModalOpen }) =>
     isModalOpen ? "calc(100vw - 390px)" : "100vw"};
   height: 77px;
-  padding-bottom:20px;
   justify-content: center;
   align-items: center;
   flex-shrink: 0;

@@ -1,5 +1,4 @@
 import React from "react";
-import { BottomSeet } from "@/shared/ui/modal";
 import { Button } from "@/shared/ui/button";
 import styled from "styled-components";
 import { Confirm } from "@/shared/ui/modal";

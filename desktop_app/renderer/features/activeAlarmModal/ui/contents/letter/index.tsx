@@ -18,7 +18,7 @@ const Layout = styled.div`
 const mapper ={
   support:ReportedLetter,
   linkedout: BigLetter,
-  published:BigLetter
+  public:BigLetter
 }
 
 function index({
@@ -27,7 +27,7 @@ function index({
   createdDate,
   handleCloseModal
 }: {
-  type:"published"|"support" | "linkedout";
+  type:"public"|"support" | "linkedout";
   title: string;
   createdDate: string;
   handleCloseModal?: () => void;

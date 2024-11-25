@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 interface AlarmButtonProps {
   onClick?: () => void;
+  isBlack?: boolean;
 }
 
 const Button = styled.button`
@@ -13,11 +14,13 @@ const Button = styled.button`
   cursor: pointer;
   z-index: 10;
   position: absolute;
-  left:94.78%;
-  top:37.63px;
+  left: 94.78%;
+  top: 37.63px;
 `;
 
-const AlarmButton: React.FC<AlarmButtonProps> = ({ onClick }) => {
+const AlarmButton: React.FC<AlarmButtonProps> = ({
+  onClick,
+}) => {
   return (
     <Button onClick={onClick}>
       <AlarmIcon />
